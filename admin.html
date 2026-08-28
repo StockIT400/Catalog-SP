@@ -283,7 +283,11 @@
         return;
       }
 
-      grid.innerHTML = items.map(c => `
+      grid.innerHTML = items.map(c => {
+        // ใช้ JSON.stringify ฝังข้อมูลลงในฟังก์ชันเพื่อป้องกันอักขระพิเศษและช่องว่างพัง
+        const categoryDataJson = JSON.stringify(c).replace(/"/g, '&quot;');
+
+        return `
         <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer group flex flex-col">
           <div class="h-44 bg-slate-100 relative overflow-hidden flex items-center justify-center p-2 border-b border-slate-100">
             ${c.cover_url 
@@ -291,7 +295,7 @@
               : `<div class="w-full h-full flex flex-col items-center justify-center text-slate-300 bg-slate-100"><i data-lucide="folder" class="w-10 h-10 mb-1"></i><span class="text-xs">ไม่มีภาพปก</span></div>`
             }
             <div class="absolute top-2 right-2 flex gap-1 z-10">
-              <button onclick="event.stopPropagation(); openEditCatModal(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="bg-blue-600/80 hover:bg-blue-600 text-white p-1.5 rounded-lg backdrop-blur-md transition shadow"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+              <button onclick="event.stopPropagation(); openEditCatModalFromObj(${categoryDataJson})" class="bg-blue-600/80 hover:bg-blue-600 text-white p-1.5 rounded-lg backdrop-blur-md transition shadow"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
               <button onclick="event.stopPropagation(); deleteCategory(${c.id})" class="bg-red-600/80 hover:bg-red-600 text-white p-1.5 rounded-lg backdrop-blur-md transition shadow"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
             </div>
           </div>
@@ -303,16 +307,18 @@
             <i data-lucide="chevron-right" class="w-5 h-5 text-slate-400 group-hover:text-indigo-600"></i>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
       lucide.createIcons();
     }
 
-    function openEditCatModal(id, name) {
-  document.getElementById('edit-cat-id').value = id; // <-- เพิ่มบรรทัดนี้เพื่อให้จำ ID ของหมวดหมู่
-  document.getElementById('edit-cat-name').value = name;
-  document.getElementById('edit-cat-image').value = '';
-  document.getElementById('edit-cat-modal').classList.remove('hidden');
-}
+    function openEditCatModalFromObj(catObj) {
+      document.getElementById('edit-cat-id').value = catObj.id;
+      document.getElementById('edit-cat-name').value = catObj.name;
+      document.getElementById('edit-cat-image').value = '';
+      document.getElementById('edit-cat-modal').classList.remove('hidden');
+    }
+
     function closeEditCatModal() { document.getElementById('edit-cat-modal').classList.add('hidden'); }
 
     async function saveEditCategory() {
@@ -643,7 +649,7 @@
 
     function filterProducts() {
       const query = document.getElementById('search-input').value.toLowerCase();
-      const filtered = currentCategoryProducts.filter(p => p.title.toLowerCase().text.includes(query) || p.title.toLowerCase().includes(query));
+      const filtered = currentCategoryProducts.filter(p => p.title.toLowerCase().includes(query));
       renderProducts(filtered);
     }
 
