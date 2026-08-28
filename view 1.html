@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายการแคตตาล็อกสินค้าสำหรับคุณ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>body { font-family: 'Prompt', sans-serif; }</style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+
+  <!-- Minimal Premium Header -->
+  <header class="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="bg-indigo-600 text-white p-2 rounded-xl">
+          <i data-lucide="file-text" class="w-5 h-5"></i>
+        </span>
+        <h1 class="font-bold text-slate-900 text-base">แคตตาล็อกสินค้าแนะนำ</h1>
+      </div>
+      <span class="text-xs bg-indigo-50 text-indigo-700 font-semibold px-3 py-1 rounded-full">Exclusive</span>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <div id="client-grid" class="space-y-6">
+      <div class="text-center py-16 bg-white rounded-3xl shadow-sm border border-slate-200/60 p-6">
+        <div class="animate-spin text-indigo-600 w-8 h-8 mx-auto mb-3">
+          <i data-lucide="loader-2" class="w-8 h-8"></i>
+        </div>
+        <p class="text-slate-500 text-sm">กำลังโหลดแคตตาล็อก...</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://yzfjddyrewgajrvymhin.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6ZmpkZHlyZXdnYWpydnltaGluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTUxNjcsImV4cCI6MjEwMzQ3MTE2N30.C0n2fy1qw0E2qdHzLeid1QnkUuotxyHPD7Nb6gyZzmk";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    lucide.createIcons();
+
+    async function loadClientCatalog() {
+      const shareId = new URLSearchParams(window.location.search).get('id');
+      const container = document.getElementById('client-grid');
+
+      if (!shareId) {
+        container.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-red-500 font-medium">ไม่พบลิงก์แคตตาล็อก</div>`;
+        return;
+      }
+
+      const { data: shareData } = await supabaseClient.from('shared_catalogs').select('product_ids').eq('id', shareId).single();
+
+      if (shareData && shareData.product_ids) {
+        const { data: products } = await supabaseClient.from('products').select('*').in('id', shareData.product_ids);
+        
+        if (!products || products.length === 0) {
+          container.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-slate-500">ไม่มีสินค้าในรายการนี้</div>`;
+          return;
+        }
+
+        container.innerHTML = products.map((p, idx) => `
+          <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200/80 transition hover:shadow-md">
+            <!-- A4 Document Viewer Container -->
+            <div class="p-2 sm:p-4 bg-slate-50/50">
+              <div class="relative w-full aspect-[1/1.414] bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200/60">
+                <img src="${p.image_url}" class="w-full h-full object-contain" alt="${p.title}">
+              </div>
+            </div>
+
+            <!-- Footer Details & Action -->
+            <div class="p-4 sm:p-5 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">รายการที่ ${idx + 1}</span>
+                <h2 class="font-bold text-slate-900 text-lg">${p.title}</h2>
+              </div>
+              <a href="${p.image_url}" target="_blank" download class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>เปิดรูปขนาดเต็ม / ดาวน์โหลด</span>
+              </a>
+            </div>
+          </div>
+        `).join('');
+        lucide.createIcons();
+      }
+    }
+
+    loadClientCatalog();
+  </script>
+</body>
+</html>
