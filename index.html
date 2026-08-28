@@ -287,8 +287,9 @@
     }
 
     function getBaseUrl() {
-      return window.location.origin + window.location.pathname;
-    }
+  // เปลี่ยนปลายทางของลิงก์แชร์ให้ส่งไปที่ view.html สำหรับลูกค้าเสมอ
+  return window.location.origin + window.location.pathname.replace('index.html', '') + 'view.html';
+}
 
     // --- SELECTION & FLOATING BAR LOGIC ---
     function updateFloatingBar() {
