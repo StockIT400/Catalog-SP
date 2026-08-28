@@ -99,7 +99,6 @@
           <div class="flex items-center gap-3">
             <h2 id="current-cat-title" class="text-2xl font-bold text-slate-900">ชื่อหมวดหมู่</h2>
             
-            <!-- ปุ่มแชร์ทั้งหมวดหมู่นี้ -->
             <button onclick="shareCurrentCategoryDirect()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-100 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
               <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
               <span>แชร์ทั้งหมวดหมู่นี้</span>
@@ -127,7 +126,7 @@
 
   </main>
 
-  <!-- FLOATING BOTTOM BAR FOR SELECTED ITEMS -->
+  <!-- FLOATING BOTTOM BAR -->
   <div id="floating-share-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3.5 rounded-full shadow-2xl z-40 flex items-center gap-4 border border-slate-700 transform translate-y-32 opacity-0 transition-all duration-300">
     <div class="flex items-center gap-2">
       <span class="w-3 h-3 rounded-full bg-indigo-500 animate-ping"></span>
@@ -146,16 +145,12 @@
   <!-- LEVEL 3: MODAL VIEWER -->
   <div id="a4-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-6 transition-all duration-300">
     <div class="relative max-w-5xl w-full h-[92vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-      
-      <!-- Modal Header -->
       <div class="p-4 px-6 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 shrink-0">
         <div class="flex items-center gap-2 truncate max-w-xs sm:max-w-md">
           <i data-lucide="file-text" class="w-4 h-4 text-indigo-400 shrink-0"></i>
           <h3 id="modal-title" class="font-bold text-base text-indigo-200 truncate">รายละเอียดสินค้า</h3>
         </div>
-        
         <div class="flex items-center gap-2">
-          <!-- Controls Zoom -->
           <div class="flex items-center bg-slate-800 rounded-xl p-1 gap-1 border border-slate-700">
             <button onclick="zoomOut()" title="ย่อภาพ" class="p-1.5 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition">
               <i data-lucide="zoom-out" class="w-4 h-4"></i>
@@ -168,7 +163,6 @@
             </button>
           </div>
 
-          <!-- ปุ่มแชร์รูปนี้ -->
           <button onclick="shareSingleProductInModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-indigo-500/20 active:scale-95">
             <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
             <span class="hidden sm:inline">แชร์รูปนี้</span>
@@ -185,7 +179,6 @@
         </div>
       </div>
 
-      <!-- Image Canvas Viewport -->
       <div class="overflow-hidden flex-grow relative bg-slate-200/80 cursor-grab active:cursor-grabbing flex items-center justify-center p-4">
         <div id="panzoom-element" class="w-full h-full flex items-center justify-center">
           <img id="modal-img-a4" src="" class="max-w-full max-h-full object-contain shadow-2xl rounded-lg bg-white">
@@ -194,7 +187,6 @@
           💡 สามารถใช้นิ้วถ่างซูม หรือเลื่อนเมาส์เพื่อขยายดูตัวหนังสือได้
         </div>
       </div>
-
     </div>
   </div>
 
@@ -209,7 +201,6 @@
     let currentProductId = null;
     let currentCategoryProducts = [];
     
-    // Sets เก็บรายการที่เลือก
     let selectedCategoryIds = new Set();
     let selectedProductIds = new Set();
     let panzoomInstance = null;
@@ -217,9 +208,9 @@
     lucide.createIcons();
 
     async function init() {
-      await loadCategories();
       initPanzoom();
-      checkUrlParams();
+      await loadCategories();
+      await checkUrlParams();
     }
 
     function initPanzoom() {
@@ -239,17 +230,31 @@
       const catsStr = urlParams.get('cats');
       const prodIds = urlParams.get('prods');
 
+      // 1. ตรวจสอบการเปิดหมวดหมู่หลายรายการ
       if (catsStr) {
         catsStr.split(',').map(Number).forEach(id => selectedCategoryIds.add(id));
         updateFloatingBar();
         renderCategories(allCategories, {});
-      } else if (catId) {
+      } 
+      // 2. ตรวจสอบการเจาะจงเข้าหมวดหมู่ใดหมวดหมู่หนึ่ง
+      else if (catId) {
         const { data: cat } = await supabaseClient.from('categories').select('*').eq('id', catId).single();
         if (cat) {
-          openCategory(cat.id, cat.name, false);
+          await openCategory(cat.id, cat.name, false);
+          
           if (prodIds) {
-            prodIds.split(',').map(Number).forEach(id => selectedProductIds.add(id));
+            const idsArr = prodIds.split(',').map(Number);
+            idsArr.forEach(id => selectedProductIds.add(id));
             updateFloatingBar();
+            renderProducts(currentCategoryProducts);
+
+            // หากมีแค่ 1 รายการ ให้เปิดขยายภาพ (Modal Viewer) ให้อัตโนมัติทันที
+            if (idsArr.length === 1) {
+              const targetProd = currentCategoryProducts.find(p => p.id === idsArr[0]);
+              if (targetProd) {
+                openA4Modal(targetProd.id, targetProd.title, targetProd.image_url);
+              }
+            }
           }
         }
       }
@@ -276,6 +281,10 @@
         document.body.removeChild(input);
         showToast(msg);
       }
+    }
+
+    function getBaseUrl() {
+      return window.location.origin + window.location.pathname;
     }
 
     // --- SELECTION & FLOATING BAR LOGIC ---
@@ -309,13 +318,14 @@
 
     function handleFloatingShare() {
       const isCatView = document.getElementById('section-products').classList.contains('hidden');
+      const baseUrl = getBaseUrl();
       if (isCatView) {
         const catsStr = Array.from(selectedCategoryIds).join(',');
-        const shareUrl = `${window.location.origin}${window.location.pathname}?cats=${catsStr}`;
+        const shareUrl = `${baseUrl}?cats=${catsStr}`;
         copyToClipboard(shareUrl, `คัดลอกลิงก์หมวดหมู่ที่เลือก (${selectedCategoryIds.size} หมวด) แล้ว!`);
       } else {
         const prodsStr = Array.from(selectedProductIds).join(',');
-        const shareUrl = `${window.location.origin}${window.location.pathname}?cat=${currentCategoryId}&prods=${prodsStr}`;
+        const shareUrl = `${baseUrl}?cat=${currentCategoryId}&prods=${prodsStr}`;
         copyToClipboard(shareUrl, `คัดลอกลิงก์สินค้าที่เลือก (${selectedProductIds.size} รายการ) แล้ว!`);
       }
     }
@@ -365,12 +375,14 @@
     }
 
     function shareCurrentCategoryDirect() {
-      const shareUrl = `${window.location.origin}${window.location.pathname}?cat=${currentCategoryId}`;
+      const baseUrl = getBaseUrl();
+      const shareUrl = `${baseUrl}?cat=${currentCategoryId}`;
       copyToClipboard(shareUrl, `คัดลอกลิงก์หมวดหมู่ "${currentCategoryName}" แล้ว!`);
     }
 
     function shareSingleProductInModal() {
-      const shareUrl = `${window.location.origin}${window.location.pathname}?cat=${currentCategoryId}&prods=${currentProductId}`;
+      const baseUrl = getBaseUrl();
+      const shareUrl = `${baseUrl}?cat=${currentCategoryId}&prods=${currentProductId}`;
       copyToClipboard(shareUrl, `คัดลอกลิงก์สินค้านี้เรียบร้อยแล้ว!`);
     }
 
@@ -401,7 +413,6 @@
         return `
         <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition duration-300 relative group flex flex-col justify-between ${isSelected ? 'ring-2 ring-indigo-600 bg-indigo-50/20' : ''}">
           
-          <!-- Checkbox หมวดหมู่ -->
           <div onclick="toggleSelectCat(${c.id}, event)" class="absolute top-3 left-3 z-20 cursor-pointer p-1">
             <div class="w-6 h-6 rounded-lg ${isSelected ? 'bg-indigo-600 text-white flex items-center justify-center shadow-md' : 'border-2 border-slate-300 bg-white hover:border-indigo-500 shadow-sm'} transition">
               ${isSelected ? `<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>` : ''}
@@ -442,12 +453,12 @@
     }
 
     // --- LEVEL 2: PRODUCTS ---
-    function openCategory(catId, catName, updateUrl = true) {
+    async function openCategory(catId, catName, updateUrl = true) {
       currentCategoryId = catId;
       currentCategoryName = catName;
-      selectedProductIds.clear();
 
       if (updateUrl) {
+        selectedProductIds.clear();
         window.history.pushState({}, '', `?cat=${catId}`);
       }
 
@@ -459,7 +470,7 @@
       
       updateFloatingBar();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      loadCategoryProducts(catId);
+      await loadCategoryProducts(catId);
     }
 
     function showCategoryView() {
@@ -501,20 +512,17 @@
             <div class="aspect-[1/1.414] rounded-xl overflow-hidden bg-slate-50 mb-3 border border-slate-100 relative flex items-center justify-center p-1.5 group-hover:border-indigo-200 transition">
               <img src="${p.image_url}" class="w-full h-full object-contain">
               
-              <!-- Checkbox Button บนสินค้า -->
               <div onclick="toggleSelectProduct(${p.id}, event)" class="absolute top-2 left-2 z-10 p-1">
                 <div id="chk-${p.id}" class="w-6 h-6 rounded-lg ${isSelected ? 'bg-indigo-600 text-white flex items-center justify-center shadow-md' : 'border-2 border-slate-300 bg-white hover:border-indigo-500 shadow-sm'} transition">
                   ${isSelected ? `<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>` : ''}
                 </div>
               </div>
 
-              <!-- Hover Overlay -->
               <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px] rounded-xl pointer-events-none">
                 <i data-lucide="zoom-in" class="w-4 h-4"></i> ดูรูปขยาย
               </div>
             </div>
 
-            <!-- ชื่อสินค้าชัดเจน -->
             <div class="bg-indigo-50/80 p-2.5 rounded-xl border border-indigo-100 text-center">
               <h4 class="font-extrabold text-sm text-slate-900 group-hover:text-indigo-600 transition truncate leading-snug" title="${p.title}">${p.title}</h4>
             </div>
