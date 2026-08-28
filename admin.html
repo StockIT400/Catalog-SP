@@ -308,11 +308,11 @@
     }
 
     function openEditCatModal(id, name) {
-      document.getElementById('edit-cat-id').value = id;
-      document.getElementById('edit-cat-name').value = name;
-      document.getElementById('edit-cat-image').value = '';
-      document.getElementById('edit-cat-modal').classList.remove('hidden');
-    }
+  document.getElementById('edit-cat-id').value = id; // <-- เพิ่มบรรทัดนี้เพื่อให้จำ ID ของหมวดหมู่
+  document.getElementById('edit-cat-name').value = name;
+  document.getElementById('edit-cat-image').value = '';
+  document.getElementById('edit-cat-modal').classList.remove('hidden');
+}
     function closeEditCatModal() { document.getElementById('edit-cat-modal').classList.add('hidden'); }
 
     async function saveEditCategory() {
