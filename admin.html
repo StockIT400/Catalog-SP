@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Category Covers & A4 Catalog</title>
+  <title>Admin Dashboard - Category Covers & Multi-A4 Catalog</title>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,7 +14,6 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 
   <div class="min-h-screen flex flex-col">
-    <!-- Top Nav -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -23,7 +22,7 @@
           </div>
           <div>
             <span class="font-bold text-lg text-slate-900 block leading-tight">Admin Studio</span>
-            <span class="text-xs text-slate-400">ระบบจัดการหมวดหมู่และใบสินค้า A4</span>
+            <span class="text-xs text-slate-400">ระบบจัดการหมวดหมู่และใบสินค้า A4 หลายรูป</span>
           </div>
         </div>
         <button id="btn-back-main" onclick="showCategoryView()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
@@ -35,9 +34,7 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
       
-      <!-- LEVEL 1: หน้าแสดงหมวดหมู่ทั้งหมด -->
       <div id="section-categories" class="space-y-8">
-        <!-- ฟอร์มเพิ่มหมวดหมู่ -->
         <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80 max-w-2xl mx-auto">
           <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
             <i data-lucide="folder-plus" class="w-5 h-5 text-indigo-600"></i>
@@ -59,7 +56,6 @@
           </button>
         </div>
 
-        <!-- รายการหมวดหมู่ทั้งหมด -->
         <div>
           <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
             <i data-lucide="folder" class="w-5 h-5 text-indigo-600"></i>
@@ -71,7 +67,6 @@
         </div>
       </div>
 
-      <!-- LEVEL 2: หน้าแสดงรายการสินค้าภายในหมวดหมู่ที่เลือก -->
       <div id="section-products" class="hidden space-y-8">
         <div class="bg-indigo-900 text-white p-6 rounded-3xl shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -84,12 +79,11 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <!-- ฟอร์มเพิ่มสินค้า A4 -->
           <div>
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80 sticky top-24">
               <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <i data-lucide="file-plus" class="w-5 h-5 text-indigo-600"></i>
-                อัปโหลดสินค้าใหม่ (ภาพ A4)
+                อัปโหลดสินค้าใหม่ (เลือกได้หลายรูป A4)
               </h3>
               <div class="space-y-4">
                 <div>
@@ -97,8 +91,8 @@
                   <input type="text" id="p-title" placeholder="เช่น สติ๊กเกอร์บาร์โค้ด ขนาด 3.2x2.5" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">ไฟล์รูปภาพขนาด A4</label>
-                  <input type="file" id="p-image" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 border border-slate-200 rounded-xl cursor-pointer">
+                  <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">ไฟล์รูปภาพขนาด A4 (เลือกได้มากกว่า 1 รูป)</label>
+                  <input type="file" id="p-images" accept="image/*" multiple class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 border border-slate-200 rounded-xl cursor-pointer">
                 </div>
                 <button onclick="addProduct()" id="btn-upload" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 text-sm">
                   <i data-lucide="upload-cloud" class="w-4 h-4"></i>
@@ -108,18 +102,17 @@
             </div>
           </div>
 
-          <!-- รายการสินค้า -->
           <div class="lg:col-span-2 space-y-4">
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <i data-lucide="files" class="w-5 h-5 text-indigo-600"></i>
-                  รายการสินค้าในหมวดนี้ (คลิกรูปเพื่อดู A4 เต็มจอ)
+                  รายการสินค้าในหมวดนี้
                 </h3>
                 <input type="text" id="search-input" onkeyup="filterProducts()" placeholder="ค้นหารายการ..." class="px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
               </div>
 
-              <div id="product-list" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <p class="text-slate-400 text-sm col-span-full text-center py-8">กำลังโหลดรายการ...</p>
               </div>
             </div>
@@ -130,7 +123,6 @@
     </main>
   </div>
 
-  <!-- LEVEL 3: Modal ป๊อบอัพแสดงรูปภาพสินค้ารายการนั้นๆ (ขนาด A4 เต็มจอ) -->
   <div id="a4-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="relative max-w-3xl w-full max-h-[92vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col">
       <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
@@ -140,14 +132,18 @@
         </button>
       </div>
       <div class="overflow-y-auto p-4 flex-grow flex items-center justify-center bg-slate-200/60">
-        <div class="w-full max-w-xl aspect-[1/1.414] bg-white shadow-xl rounded-xl overflow-hidden border border-slate-300">
+        <div class="w-full max-w-xl aspect-[1/1.414] bg-white shadow-xl rounded-xl overflow-hidden border border-slate-300 relative flex items-center justify-center">
           <img id="modal-img-a4" src="" class="w-full h-full object-contain">
         </div>
+      </div>
+      <div id="modal-nav" class="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-white">
+        <button onclick="prevModalImg()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold">รูปก่อนหน้า</button>
+        <span id="modal-counter" class="text-xs text-slate-300">1 / 1</span>
+        <button onclick="nextModalImg()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold">รูปถัดไป</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: แก้ไขหมวดหมู่ -->
   <div id="edit-cat-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center">
@@ -172,12 +168,11 @@
     </div>
   </div>
 
-  <!-- MODAL: แก้ไขสินค้า -->
   <div id="edit-prod-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center">
         <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i data-lucide="edit-3" class="w-5 h-5 text-indigo-600"></i> แก้ไขรายการสินค้า
+          <i data-lucide="edit-3" class="w-5 h-5 text-indigo-600"></i> แก้ไขรายการสินค้า & จัดการรูปภาพ
         </h3>
         <button onclick="closeEditProdModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
@@ -186,10 +181,18 @@
         <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">ชื่อ / รหัสสินค้า</label>
         <input type="text" id="edit-prod-title" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
       </div>
+
       <div>
-        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">เปลี่ยนไฟล์ภาพ A4 (ถ้าไม่เปลี่ยนให้เว้นว่างไว้)</label>
-        <input type="file" id="edit-prod-image" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 border border-slate-200 rounded-xl cursor-pointer">
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">รูปภาพปัจจุบัน (กดปุ่มถังขยะเพื่อลบรูปที่ไม่ต้องการ)</label>
+        <div id="edit-prod-images-container" class="grid grid-cols-3 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200 max-h-48 overflow-y-auto">
+          </div>
       </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">อัปโหลดรูปภาพ A4 เพิ่มเติม</label>
+        <input type="file" id="edit-prod-new-images" accept="image/*" multiple class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 border border-slate-200 rounded-xl cursor-pointer">
+      </div>
+
       <div class="flex gap-2 pt-2">
         <button onclick="closeEditProdModal()" class="w-1/2 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-sm font-medium hover:bg-slate-200">ยกเลิก</button>
         <button onclick="saveEditProduct()" id="btn-save-prod" class="w-1/2 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 shadow-md shadow-indigo-100">บันทึกการแก้ไข</button>
@@ -205,6 +208,10 @@
     let categories = [];
     let currentCategoryId = null;
     let currentCategoryProducts = [];
+    
+    // ตัวแปรสำหรับ Modal ดูรูป A4 หลายรูป
+    let activeModalImages = [];
+    let modalImageIndex = 0;
 
     lucide.createIcons();
 
@@ -212,12 +219,11 @@
       await loadCategories();
     }
 
-    // --- LEVEL 1: CATEGORY ---
+    // --- CATEGORY FUNCTIONS ---
     async function addCategory() {
       const name = document.getElementById('cat-name').value;
       const fileInput = document.getElementById('cat-image');
       const file = fileInput.files[0];
-
       if (!name) return alert("กรุณาระบุชื่อหมวดหมู่");
 
       const btnText = document.getElementById('btn-add-cat-text');
@@ -229,10 +235,8 @@
           const options = { maxSizeMB: 0.5, maxWidthOrHeight: 1200, useWebWorker: true };
           const compressedFile = await imageCompression(file, options);
           const fileName = `cover_${Date.now()}.webp`;
-
           const { error: imgErr } = await supabaseClient.storage.from('product-images').upload(fileName, compressedFile);
           if (imgErr) throw imgErr;
-          
           coverUrl = `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
         }
 
@@ -264,23 +268,14 @@
 
       grid.innerHTML = items.map(c => `
         <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer group flex flex-col">
-          <!-- แสดงผลรูปภาพแบบพอดีกรอบ ไม่โดนตัด (object-contain) -->
           <div class="h-44 bg-slate-100 relative overflow-hidden flex items-center justify-center p-2 border-b border-slate-100">
             ${c.cover_url 
               ? `<img src="${c.cover_url}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500">` 
-              : `<div class="w-full h-full flex flex-col items-center justify-center text-slate-300 bg-slate-100">
-                   <i data-lucide="folder" class="w-10 h-10 mb-1"></i>
-                   <span class="text-xs">ไม่มีภาพปก</span>
-                 </div>`
+              : `<div class="w-full h-full flex flex-col items-center justify-center text-slate-300 bg-slate-100"><i data-lucide="folder" class="w-10 h-10 mb-1"></i><span class="text-xs">ไม่มีภาพปก</span></div>`
             }
-            <!-- ปุ่มจัดการไอคอนขนาดพอดี -->
             <div class="absolute top-2 right-2 flex gap-1 z-10">
-              <button onclick="event.stopPropagation(); openEditCatModal(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="bg-blue-600/80 hover:bg-blue-600 text-white p-1.5 rounded-lg backdrop-blur-md transition shadow">
-                <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="event.stopPropagation(); deleteCategory(${c.id})" class="bg-red-600/80 hover:bg-red-600 text-white p-1.5 rounded-lg backdrop-blur-md transition shadow">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
+              <button onclick="event.stopPropagation(); openEditCatModal(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="bg-blue-600/80 hover:bg-blue-600 text-white p-1.5 rounded-lg backdrop-blur-md transition shadow"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+              <button onclick="event.stopPropagation(); deleteCategory(${c.id})" class="bg-red-600/80 hover:bg-red-600 text-white p-1.5 rounded-lg backdrop-blur-md transition shadow"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
             </div>
           </div>
           <div class="p-4 flex-grow flex items-center justify-between">
@@ -295,46 +290,35 @@
       lucide.createIcons();
     }
 
-    // --- EDIT CATEGORY ---
     function openEditCatModal(id, name) {
       document.getElementById('edit-cat-id').value = id;
       document.getElementById('edit-cat-name').value = name;
       document.getElementById('edit-cat-image').value = '';
       document.getElementById('edit-cat-modal').classList.remove('hidden');
     }
-
-    function closeEditCatModal() {
-      document.getElementById('edit-cat-modal').classList.add('hidden');
-    }
+    function closeEditCatModal() { document.getElementById('edit-cat-modal').classList.add('hidden'); }
 
     async function saveEditCategory() {
       const id = document.getElementById('edit-cat-id').value;
       const name = document.getElementById('edit-cat-name').value;
       const fileInput = document.getElementById('edit-cat-image');
       const file = fileInput.files[0];
-
       if (!name) return alert("กรุณาระบุชื่อหมวดหมู่");
 
       const btn = document.getElementById('btn-save-cat');
       btn.innerText = "กำลังบันทึก...";
-
       try {
         let updateData = { name };
-
         if (file) {
           const options = { maxSizeMB: 0.5, maxWidthOrHeight: 1200, useWebWorker: true };
           const compressedFile = await imageCompression(file, options);
           const fileName = `cover_${Date.now()}.webp`;
-
           const { error: imgErr } = await supabaseClient.storage.from('product-images').upload(fileName, compressedFile);
           if (imgErr) throw imgErr;
-          
           updateData.cover_url = `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
         }
-
         const { error } = await supabaseClient.from('categories').update(updateData).eq('id', id);
         if (error) throw error;
-
         closeEditCatModal();
         btn.innerText = "บันทึกการแก้ไข";
         loadCategories();
@@ -351,7 +335,7 @@
       }
     }
 
-    // --- LEVEL 2: PRODUCT LIST ---
+    // --- PRODUCT FUNCTIONS (MULTI-IMAGES) ---
     function openCategory(catId, catName) {
       currentCategoryId = catId;
       document.getElementById('current-cat-title').innerText = catName;
@@ -369,8 +353,18 @@
     }
 
     async function loadCategoryProducts(catId) {
-      const { data } = await supabaseClient.from('products').select('*').eq('category_id', catId).order('id', { ascending: false });
-      currentCategoryProducts = data || [];
+      const { data: products } = await supabaseClient.from('products').select('*').eq('category_id', catId).order('id', { ascending: false });
+      const { data: images } = await supabaseClient.from('product_images').select('*');
+
+      currentCategoryProducts = (products || []).map(p => {
+        const prodImgs = (images || []).filter(img => img.product_id === p.id);
+        // Fallback ถ้ายังไม่มีในตารางย่อย แต่มีใน image_url เก่า
+        if (prodImgs.length === 0 && p.image_url) {
+          prodImgs.push({ id: 'legacy', image_url: p.image_url });
+        }
+        return { ...p, images: prodImgs };
+      });
+
       renderProducts(currentCategoryProducts);
     }
 
@@ -381,65 +375,74 @@
         return;
       }
 
-      list.innerHTML = items.map(p => `
-        <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm relative group flex flex-col justify-between">
-          <div>
-            <!-- รูปแบบพอดี A4 (object-contain) ไม่ล้นกรอบ -->
-            <div onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', '${p.image_url}')" class="aspect-[1/1.414] rounded-xl overflow-hidden bg-slate-100 mb-2 border border-slate-200 relative cursor-pointer group-hover:opacity-95 transition flex items-center justify-center p-1">
-              <img src="${p.image_url}" class="w-full h-full object-contain">
-              <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-medium gap-1 rounded-xl">
-                <i data-lucide="maximize-2" class="w-4 h-4"></i> ดู A4
+      list.innerHTML = items.map(p => {
+        const coverImg = p.images[0]?.image_url || 'https://via.placeholder.com/400x500?text=No+Image';
+        const imgCount = p.images.length;
+        const imagesJson = JSON.stringify(p.images.map(i => i.image_url)).replace(/"/g, '&quot;');
+
+        return `
+          <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm relative group flex flex-col justify-between">
+            <div>
+              <div onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', ${imagesJson})" class="aspect-[1/1.414] rounded-xl overflow-hidden bg-slate-100 mb-2 border border-slate-200 relative cursor-pointer group-hover:opacity-95 transition flex items-center justify-center p-1">
+                <img src="${coverImg}" class="w-full h-full object-contain">
+                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-medium gap-1 rounded-xl">
+                  <i data-lucide="maximize-2" class="w-4 h-4"></i> ดู A4 (${imgCount} หน้า)
+                </div>
+                ${imgCount > 1 ? `<span class="absolute top-2 left-2 bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">${imgCount} รูป</span>` : ''}
               </div>
+              <h4 class="font-bold text-xs text-slate-800 truncate mb-2">${p.title}</h4>
             </div>
-            <h4 class="font-bold text-xs text-slate-800 truncate mb-2">${p.title}</h4>
+            
+            <div class="grid grid-cols-3 gap-1 pt-2 border-t border-slate-100">
+              <button onclick="toggleActive(${p.id}, ${p.is_active})" title="${p.is_active ? 'ซ่อน' : 'แสดง'}" class="col-span-1 ${p.is_active ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'} text-[11px] py-1.5 rounded-lg font-medium transition flex items-center justify-center">
+                <i data-lucide="${p.is_active ? 'eye-off' : 'eye'}" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="openEditProdModal(${p.id})" title="แก้ไข" class="col-span-1 bg-blue-50 text-blue-600 hover:bg-blue-100 text-[11px] py-1.5 rounded-lg font-medium transition flex items-center justify-center">
+                <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="deleteProduct(${p.id})" title="ลบ" class="col-span-1 bg-red-50 text-red-600 hover:bg-red-100 text-[11px] py-1.5 rounded-lg font-medium transition flex items-center justify-center">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
           </div>
-          
-          <!-- ปุ่มจัดการสินค้าแบบมีแก้ไข -->
-          <div class="grid grid-cols-3 gap-1 pt-2 border-t border-slate-100">
-            <button onclick="toggleActive(${p.id}, ${p.is_active})" title="${p.is_active ? 'ซ่อน' : 'แสดง'}" class="col-span-1 ${p.is_active ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'} text-[11px] py-1.5 rounded-lg font-medium transition flex items-center justify-center">
-              <i data-lucide="${p.is_active ? 'eye-off' : 'eye'}" class="w-3.5 h-3.5"></i>
-            </button>
-            <button onclick="openEditProdModal(${p.id}, '${p.title.replace(/'/g, "\\'")}')" title="แก้ไข" class="col-span-1 bg-blue-50 text-blue-600 hover:bg-blue-100 text-[11px] py-1.5 rounded-lg font-medium transition flex items-center justify-center">
-              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
-            </button>
-            <button onclick="deleteProduct(${p.id})" title="ลบ" class="col-span-1 bg-red-50 text-red-600 hover:bg-red-100 text-[11px] py-1.5 rounded-lg font-medium transition flex items-center justify-center">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
       lucide.createIcons();
     }
 
     async function addProduct() {
       const title = document.getElementById('p-title').value;
-      const fileInput = document.getElementById('p-image');
-      const file = fileInput.files[0];
+      const fileInput = document.getElementById('p-images');
+      const files = fileInput.files;
 
-      if (!title || !file) return alert("กรุณากรอกชื่อรายการและเลือกภาพ A4");
+      if (!title || files.length === 0) return alert("กรุณากรอกชื่อรายการและเลือกไฟล์ภาพ A4 อย่างน้อย 1 รูป");
 
       const btnText = document.getElementById('upload-btn-text');
-      btnText.innerText = "กำลังบีบอัดรูปภาพ...";
+      btnText.innerText = "กำลังอัปโหลดรูปภาพ...";
 
       try {
-        const options = { maxSizeMB: 0.7, maxWidthOrHeight: 2000, useWebWorker: true };
-        const compressedFile = await imageCompression(file, options);
-
-        btnText.innerText = "กำลังอัปโหลด...";
-        const fileName = `a4_${Date.now()}.webp`;
-        const { error: imgErr } = await supabaseClient.storage.from('product-images').upload(fileName, compressedFile);
-
-        if (imgErr) throw imgErr;
-
-        const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
-
-        await supabaseClient.from('products').insert([{ 
+        // 1. บันทึกข้อมูลสินค้าหลักก่อนเพื่อเอา product_id
+        const { data: prodData, error: prodErr } = await supabaseClient.from('products').insert([{ 
           title, 
           category_id: currentCategoryId, 
-          image_url: imageUrl, 
+          image_url: '', 
           is_active: true 
-        }]);
-        
+        }]).select();
+
+        if (prodErr) throw prodErr;
+        const newProductId = prodData[0].id;
+
+        // 2. วนลูปบีบอัดและอัปโหลดทุกรูปเข้าตาราง product_images
+        for (let i = 0; i < files.length; i++) {
+          const compressed = await imageCompression(files[i], { maxSizeMB: 0.7, maxWidthOrHeight: 2000, useWebWorker: true });
+          const fileName = `a4_${newProductId}_${Date.now()}_${i}.webp`;
+          const { error: uploadErr } = await supabaseClient.storage.from('product-images').upload(fileName, compressed);
+          if (uploadErr) throw uploadErr;
+
+          const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
+          await supabaseClient.from('product_images').insert([{ product_id: newProductId, image_url: imageUrl }]);
+        }
+
         document.getElementById('p-title').value = '';
         fileInput.value = '';
         btnText.innerText = "บีบอัดและอัปโหลดเข้าหมวดนี้";
@@ -450,23 +453,72 @@
       }
     }
 
-    // --- EDIT PRODUCT ---
-    function openEditProdModal(id, title) {
-      document.getElementById('edit-prod-id').value = id;
-      document.getElementById('edit-prod-title').value = title;
-      document.getElementById('edit-prod-image').value = '';
+    // --- EDIT PRODUCT WITH MULTI-IMAGE MANAGEMENT ---
+    let editingProductData = null;
+
+    function openEditProdModal(productId) {
+      const prod = currentCategoryProducts.find(p => p.id === productId);
+      if (!prod) return;
+      editingProductData = prod;
+
+      document.getElementById('edit-prod-id').value = prod.id;
+      document.getElementById('edit-prod-title').value = prod.title;
+      document.getElementById('edit-prod-new-images').value = '';
+
+      renderEditProductImages();
       document.getElementById('edit-prod-modal').classList.remove('hidden');
     }
 
-    function closeEditProdModal() {
-      document.getElementById('edit-prod-modal').classList.add('hidden');
+    function renderEditProductImages() {
+      const container = document.getElementById('edit-prod-images-container');
+      if (!editingProductData || editingProductData.images.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 col-span-full text-center py-4">ยังไม่มีรูปภาพ</p>`;
+        return;
+      }
+
+      container.innerHTML = editingProductData.images.map((img, idx) => `
+        <div class="relative bg-white p-1 rounded-xl border border-slate-200 aspect-[1/1.414] flex items-center justify-center group">
+          <img src="${img.image_url}" class="w-full h-full object-contain rounded-lg">
+          <button onclick="deleteSingleProductImage(${img.id}, '${img.image_url}')" type="button" class="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-lg shadow hover:bg-red-700 transition" title="ลบรูปนี้">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+          <span class="absolute bottom-1 left-2 bg-slate-900/60 text-white text-[9px] px-1.5 py-0.5 rounded">รูปที่ ${idx + 1}</span>
+        </div>
+      `).join('');
+      lucide.createIcons();
     }
+
+    async function deleteSingleProductImage(imgId, imgUrl) {
+      if (!confirm("ต้องการลบรูปภาพนี้ใช่หรือไม่?")) return;
+      try {
+        // 1. ถ้าไม่ใช่รูป legacy ให้ลบออกจากตาราง product_images
+        if (imgId !== 'legacy') {
+          const { error } = await supabaseClient.from('product_images').delete().eq('id', imgId);
+          if (error) throw error;
+        }
+
+        // 2. พยายามลบไฟล์ออกจาก Storage เพื่อประหยัดพื้นที่
+        try {
+          const path = imgUrl.split('/product-images/')[1];
+          if (path) {
+            await supabaseClient.storage.from('product-images').remove([path]);
+          }
+        } catch (e) { console.log('Storage delete skip:', e); }
+
+        // อัปเดตข้อมูลหน้าจอชั่วคราว
+        editingProductData.images = editingProductData.images.filter(i => i.id !== imgId);
+        renderEditProductImages();
+      } catch (err) {
+        alert("ลบรูปไม่สำเร็จ: " + err.message);
+      }
+    }
+
+    function closeEditProdModal() { document.getElementById('edit-prod-modal').classList.add('hidden'); }
 
     async function saveEditProduct() {
       const id = document.getElementById('edit-prod-id').value;
       const title = document.getElementById('edit-prod-title').value;
-      const fileInput = document.getElementById('edit-prod-image');
-      const file = fileInput.files[0];
+      const newFiles = document.getElementById('edit-prod-new-images').files;
 
       if (!title) return alert("กรุณาระบุชื่อสินค้า");
 
@@ -474,21 +526,22 @@
       btn.innerText = "กำลังบันทึก...";
 
       try {
-        let updateData = { title };
+        // 1. อัปเดตชื่อสินค้าหลัก
+        const { error: updateErr } = await supabaseClient.from('products').update({ title }).eq('id', id);
+        if (updateErr) throw updateErr;
 
-        if (file) {
-          const options = { maxSizeMB: 0.7, maxWidthOrHeight: 2000, useWebWorker: true };
-          const compressedFile = await imageCompression(file, options);
-          const fileName = `a4_${Date.now()}.webp`;
+        // 2. ถ้ามีการเลือกรูปใหม่เพิ่มเข้ามา ให้ทำการอัปโหลดเข้าไปเพิ่ม
+        if (newFiles.length > 0) {
+          for (let i = 0; i < newFiles.length; i++) {
+            const compressed = await imageCompression(newFiles[i], { maxSizeMB: 0.7, maxWidthOrHeight: 2000, useWebWorker: true });
+            const fileName = `a4_${id}_${Date.now()}_${i}.webp`;
+            const { error: uploadErr } = await supabaseClient.storage.from('product-images').upload(fileName, compressed);
+            if (uploadErr) throw uploadErr;
 
-          const { error: imgErr } = await supabaseClient.storage.from('product-images').upload(fileName, compressedFile);
-          if (imgErr) throw imgErr;
-          
-          updateData.image_url = `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
+            const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
+            await supabaseClient.from('product_images').insert([{ product_id: id, image_url: imageUrl }]);
+          }
         }
-
-        const { error } = await supabaseClient.from('products').update(updateData).eq('id', id);
-        if (error) throw error;
 
         closeEditProdModal();
         btn.innerText = "บันทึกการแก้ไข";
@@ -499,16 +552,39 @@
       }
     }
 
-    // --- LEVEL 3: MODAL A4 FULL VIEW ---
-    function openA4Modal(title, imageUrl) {
+    // --- MODAL A4 FULL VIEW (MULTI-IMAGE SUPPORT) ---
+    function openA4Modal(title, images) {
+      activeModalImages = Array.isArray(images) ? images : [images];
+      modalImageIndex = 0;
       document.getElementById('modal-title').innerText = title;
-      document.getElementById('modal-img-a4').src = imageUrl;
+      updateModalImageDisplay();
       document.getElementById('a4-modal').classList.remove('hidden');
     }
 
-    function closeA4Modal() {
-      document.getElementById('a4-modal').classList.add('hidden');
+    function updateModalImageDisplay() {
+      document.getElementById('modal-img-a4').src = activeModalImages[modalImageIndex];
+      document.getElementById('modal-counter').innerText = `${modalImageIndex + 1} / ${activeModalImages.length}`;
+      
+      const nav = document.getElementById('modal-nav');
+      if (activeModalImages.length > 1) nav.classList.remove('hidden');
+      else nav.classList.add('hidden');
     }
+
+    function nextModalImg() {
+      if (modalImageIndex < activeModalImages.length - 1) {
+        modalImageIndex++;
+        updateModalImageDisplay();
+      }
+    }
+
+    function prevModalImg() {
+      if (modalImageIndex > 0) {
+        modalImageIndex--;
+        updateModalImageDisplay();
+      }
+    }
+
+    function closeA4Modal() { document.getElementById('a4-modal').classList.add('hidden'); }
 
     async function toggleActive(id, currentStatus) {
       await supabaseClient.from('products').update({ is_active: !currentStatus }).eq('id', id);
@@ -522,7 +598,17 @@
     }
 
     async function deleteProduct(id) {
-      if (confirm("ยืนยันการลบรายการนี้?")) {
+      if (confirm("ยืนยันการลบรายการสินค้านี้ทั้งหมด?")) {
+        // ดึงรูปลงมาลบออกจาก Storage ก่อน
+        const prod = currentCategoryProducts.find(p => p.id === id);
+        if (prod && prod.images) {
+          for (const img of prod.images) {
+            try {
+              const path = img.image_url.split('/product-images/')[1];
+              if (path) await supabaseClient.storage.from('product-images').remove([path]);
+            } catch (e) {}
+          }
+        }
         await supabaseClient.from('products').delete().eq('id', id);
         loadCategoryProducts(currentCategoryId);
       }
