@@ -31,7 +31,7 @@
   <!-- Header -->
   <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="showAllCatalogView()">
         <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30">
           <i data-lucide="sparkles" class="w-5 h-5"></i>
         </div>
@@ -41,10 +41,17 @@
         </div>
       </div>
       
-      <button id="btn-back-cat" onclick="showCategoryView()" class="hidden bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2 active:scale-95">
-        <i data-lucide="arrow-left" class="w-4 h-4 text-slate-500"></i>
-        <span>ย้อนกลับไปหมวดหมู่</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button id="btn-show-all" onclick="showAllCatalogView()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+          <i data-lucide="grid" class="w-4 h-4 text-indigo-600"></i>
+          <span>ดูแค็ตตาล็อกทั้งหมด</span>
+        </button>
+
+        <button id="btn-back-cat" onclick="showCategoryView()" class="hidden bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2 active:scale-95">
+          <i data-lucide="arrow-left" class="w-4 h-4 text-slate-500"></i>
+          <span>ย้อนกลับไปหมวดหมู่</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -58,11 +65,11 @@
             <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
             Online Catalog Portfolio
           </span>
-          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+          <h1 id="hero-title" class="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
             ค้นหาแบบสติ๊กเกอร์และสินค้า <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">รายละเอียดครบถ้วนที่ต้องการ</span>
           </h1>
-          <p class="text-slate-300 text-sm font-light leading-relaxed">
-            ติ๊กเลือกหมวดหมู่ที่ต้องการแชร์ หรือกดเข้าชมเพื่อเลือกแชร์เป็นรายรูปภาพส่งให้ลูกค้าได้ทันที
+          <p id="hero-desc" class="text-slate-300 text-sm font-light leading-relaxed">
+            เลือกชมหมวดหมู่สินค้าที่ได้รับการแนะนำด้านล่าง หรือกดเลือกรายการที่ต้องการเพื่อดูรายละเอียด
           </p>
         </div>
         <div class="absolute -right-10 -bottom-10 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -72,10 +79,10 @@
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-2">
             <div class="w-2 h-6 bg-indigo-600 rounded-full"></div>
-            <h2 class="text-xl font-bold text-slate-900">หมวดหมู่ทั้งหมด</h2>
+            <h2 id="cat-section-title" class="text-xl font-bold text-slate-900">หมวดหมู่ทั้งหมด</h2>
           </div>
 
-          <button onclick="toggleSelectAllCats()" class="bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 transition flex items-center gap-1.5 shadow-sm">
+          <button id="btn-select-all-cat" onclick="toggleSelectAllCats()" class="bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 transition flex items-center gap-1.5 shadow-sm">
             <i data-lucide="check-square" class="w-4 h-4 text-indigo-600"></i>
             <span id="btn-select-all-cat-text">เลือกทุกหมวดหมู่</span>
           </button>
@@ -92,14 +99,14 @@
       <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
-            <span class="cursor-pointer hover:text-indigo-600" onclick="showCategoryView()">หมวดหมู่ทั้งหมด</span>
+            <span class="cursor-pointer hover:text-indigo-600" onclick="showCategoryView()">หมวดหมู่</span>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
             <span id="breadcrumb-cat" class="text-indigo-600 font-medium">...</span>
           </div>
           <div class="flex items-center gap-3">
             <h2 id="current-cat-title" class="text-2xl font-bold text-slate-900">ชื่อหมวดหมู่</h2>
             
-            <button onclick="shareCurrentCategoryDirect()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-100 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+            <button id="btn-share-cat-direct" onclick="shareCurrentCategoryDirect()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-100 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
               <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
               <span>แชร์ทั้งหมวดหมู่นี้</span>
             </button>
@@ -107,7 +114,7 @@
         </div>
 
         <div class="flex items-center gap-3 w-full md:w-auto">
-          <button onclick="toggleSelectAllProds()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2.5 rounded-2xl transition flex items-center gap-1.5 shrink-0">
+          <button id="btn-select-all-prod" onclick="toggleSelectAllProds()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2.5 rounded-2xl transition flex items-center gap-1.5 shrink-0">
             <i data-lucide="check-square" class="w-4 h-4"></i>
             <span id="btn-select-all-prod-text">เลือกทั้งหมด</span>
           </button>
@@ -200,9 +207,11 @@
     let currentCategoryName = '';
     let currentProductId = null;
     let currentCategoryProducts = [];
+    let countMap = {};
     
     let selectedCategoryIds = new Set();
     let selectedProductIds = new Set();
+    let isFilteredView = false; // ตัวแปรเช็คว่าเป็นมุมมองแชร์เฉพาะกิจหรือไม่
     let panzoomInstance = null;
 
     lucide.createIcons();
@@ -230,34 +239,28 @@
       const catsStr = urlParams.get('cats');
       const prodIds = urlParams.get('prods');
 
-      // 1. ตรวจสอบการเปิดหมวดหมู่หลายรายการ
+      // 1. กรณีแชร์หลายหมวดหมู่ -> กรองแสดงเฉพาะหมวดหมู่นั้นๆ
       if (catsStr) {
-        catsStr.split(',').map(Number).forEach(id => selectedCategoryIds.add(id));
-        updateFloatingBar();
-        renderCategories(allCategories, {});
+        isFilteredView = true;
+        const targetIds = catsStr.split(',').map(Number);
+        const filteredCats = allCategories.filter(c => targetIds.includes(c.id));
+        
+        document.getElementById('cat-section-title').innerText = "หมวดหมู่สินค้าแนะนำ";
+        document.getElementById('btn-show-all').classList.remove('hidden');
+        renderCategories(filteredCats, countMap);
       } 
-      // 2. ตรวจสอบการเจาะจงเข้าหมวดหมู่ใดหมวดหมู่หนึ่ง
+      // 2. กรณีแชร์เฉพาะหมวดหมู่ใดหมวดหมู่หนึ่ง
       else if (catId) {
         const { data: cat } = await supabaseClient.from('categories').select('*').eq('id', catId).single();
         if (cat) {
-          await openCategory(cat.id, cat.name, false);
-          
-          if (prodIds) {
-            const idsArr = prodIds.split(',').map(Number);
-            idsArr.forEach(id => selectedProductIds.add(id));
-            updateFloatingBar();
-            renderProducts(currentCategoryProducts);
-
-            // หากมีแค่ 1 รายการ ให้เปิดขยายภาพ (Modal Viewer) ให้อัตโนมัติทันที
-            if (idsArr.length === 1) {
-              const targetProd = currentCategoryProducts.find(p => p.id === idsArr[0]);
-              if (targetProd) {
-                openA4Modal(targetProd.id, targetProd.title, targetProd.image_url);
-              }
-            }
-          }
+          const targetProdIds = prodIds ? prodIds.split(',').map(Number) : null;
+          await openCategory(cat.id, cat.name, false, targetProdIds);
         }
       }
+    }
+
+    function showAllCatalogView() {
+      window.location.href = window.location.pathname;
     }
 
     function showToast(msg) {
@@ -311,7 +314,7 @@
     function clearAllSelection() {
       selectedCategoryIds.clear();
       selectedProductIds.clear();
-      renderCategories(allCategories, {});
+      renderCategories(allCategories, countMap);
       renderProducts(currentCategoryProducts);
       updateFloatingBar();
     }
@@ -338,7 +341,7 @@
       } else {
         selectedCategoryIds.add(id);
       }
-      renderCategories(allCategories, {});
+      renderCategories(allCategories, countMap);
       updateFloatingBar();
     }
 
@@ -348,7 +351,7 @@
       } else {
         allCategories.forEach(c => selectedCategoryIds.add(c.id));
       }
-      renderCategories(allCategories, {});
+      renderCategories(allCategories, countMap);
       updateFloatingBar();
     }
 
@@ -392,7 +395,7 @@
       const { data: products } = await supabaseClient.from('products').select('category_id').eq('is_active', true);
 
       allCategories = categories || [];
-      const countMap = {};
+      countMap = {};
       if (products) {
         products.forEach(p => { countMap[p.category_id] = (countMap[p.category_id] || 0) + 1; });
       }
@@ -453,7 +456,7 @@
     }
 
     // --- LEVEL 2: PRODUCTS ---
-    async function openCategory(catId, catName, updateUrl = true) {
+    async function openCategory(catId, catName, updateUrl = true, targetProdIds = null) {
       currentCategoryId = catId;
       currentCategoryName = catName;
 
@@ -470,13 +473,15 @@
       
       updateFloatingBar();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      await loadCategoryProducts(catId);
+      await loadCategoryProducts(catId, targetProdIds);
     }
 
     function showCategoryView() {
       currentCategoryId = null;
       selectedProductIds.clear();
-      window.history.pushState({}, '', window.location.pathname);
+      if (!isFilteredView) {
+        window.history.pushState({}, '', window.location.pathname);
+      }
       document.getElementById('section-categories').classList.remove('hidden');
       document.getElementById('section-products').classList.add('hidden');
       document.getElementById('btn-back-cat').classList.add('hidden');
@@ -485,9 +490,22 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    async function loadCategoryProducts(catId) {
+    async function loadCategoryProducts(catId, targetProdIds = null) {
       const { data } = await supabaseClient.from('products').select('*').eq('category_id', catId).eq('is_active', true).order('id', { ascending: false });
-      currentCategoryProducts = data || [];
+      let prods = data || [];
+
+      // หากมีการระบุเลือกเฉพาะสินค้า ให้ซ่อนรายการอื่นออกทั้งหมด
+      if (targetProdIds && targetProdIds.length > 0) {
+        prods = prods.filter(p => targetProdIds.includes(p.id));
+        document.getElementById('btn-show-all').classList.remove('hidden');
+
+        // หากแชร์แค่ 1 รายการ ให้เด้งรูปขยายอัตโนมัติ
+        if (targetProdIds.length === 1 && prods.length > 0) {
+          openA4Modal(prods[0].id, prods[0].title, prods[0].image_url);
+        }
+      }
+
+      currentCategoryProducts = prods;
       renderProducts(currentCategoryProducts);
     }
 
@@ -497,7 +515,7 @@
         grid.innerHTML = `
           <div class="col-span-full text-center py-16 bg-white rounded-3xl border border-slate-200/80">
             <i data-lucide="folder-open" class="w-12 h-12 text-slate-300 mx-auto mb-2"></i>
-            <p class="text-slate-500 font-medium text-sm">ยังไม่มีรายการสินค้าในหมวดหมู่นี้</p>
+            <p class="text-slate-500 font-medium text-sm">ไม่พบรายการสินค้าที่ระบุ</p>
           </div>
         `;
         lucide.createIcons();
