@@ -17,7 +17,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col relative antialiased bg-dots-pattern">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col relative antialiased bg-dots-pattern pb-16">
 
   <!-- Glow Decorative Effects (Blue Tone) -->
   <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-tr from-sky-200/40 via-blue-100/40 to-cyan-200/40 blur-3xl pointer-events-none -z-10"></div>
@@ -31,7 +31,7 @@
         </div>
         <div>
           <span class="font-bold text-base text-slate-900 block leading-tight tracking-tight">Catalog Showcase</span>
-          <span class="text-[11px] text-slate-500 font-medium">หน้ารายการสินค้าแนะนำ</span>
+          <span class="text-[11px] text-slate-500 font-medium">หน้ารายการสินค้าแนะนำสำหรับลูกค้า</span>
         </div>
       </div>
       
@@ -46,7 +46,6 @@
     
     <!-- LEVEL 1: CATEGORIES -->
     <div id="section-categories" class="space-y-8">
-      <!-- Top Showcase Banner (Blue Gradient) -->
       <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-500 via-blue-600 to-cyan-600 p-8 sm:p-10 text-white shadow-xl shadow-sky-500/10">
         <div class="relative z-10 max-w-2xl space-y-3">
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-white/15 text-white backdrop-blur-md border border-white/20">
@@ -60,7 +59,6 @@
             ท่านสามารถเลือกชมหมวดหมู่สินค้าด้านล่าง เพื่อเข้าดูรายละเอียดและภาพตัวอย่างความละเอียดสูง
           </p>
         </div>
-        <!-- Decorative Circle -->
         <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
       </div>
 
@@ -133,6 +131,13 @@
           <img id="modal-img-a4" src="" class="max-w-full max-h-full object-contain shadow-xl rounded-lg bg-white">
         </div>
       </div>
+
+      <!-- Navigation for multiple images -->
+      <div id="modal-nav-container" class="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-white shrink-0 hidden">
+        <button onclick="prevModalImage()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"><i data-lucide="chevron-left" class="w-4 h-4"></i> รูปก่อนหน้า</button>
+        <span id="modal-img-counter" class="text-xs font-medium text-slate-300">หน้า 1 / 1</span>
+        <button onclick="nextModalImage()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">รูปถัดไป <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+      </div>
     </div>
   </div>
 
@@ -144,6 +149,8 @@
     let currentCategoryProducts = [];
     let panzoomInstance = null;
     let hasMultipleCats = false;
+    let activeModalImages = [];
+    let currentModalImageIndex = 0;
 
     lucide.createIcons();
 
@@ -195,7 +202,7 @@
           <div>
             <div class="h-52 bg-slate-50/80 relative overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
               ${c.cover_url 
-                ? `<img src="${c.cover_url}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500">` 
+                ? `<img src="${c.cover_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">` 
                 : `<div class="w-full h-full flex flex-col items-center justify-center text-slate-300"><i data-lucide="image" class="w-10 h-10 mb-1 opacity-50"></i></div>`
               }
             </div>
@@ -236,12 +243,23 @@
         query = query.in('id', prodIds);
       }
 
-      const { data } = await query.order('id', { ascending: false });
-      currentCategoryProducts = data || [];
+      const { data: products } = await query.order('id', { ascending: false });
+      const { data: images } = await supabaseClient.from('product_images').select('*').order('sort_order', { ascending: true });
+
+      currentCategoryProducts = (products || []).map(p => {
+        const prodImgs = (images || []).filter(img => img.product_id === p.id).map(img => img.image_url);
+        if (prodImgs.length === 0 && p.image_url) prodImgs.push(p.image_url);
+        
+        // ใช้ภาพปกเฉพาะตัว (cover_url) ถ้ามี ถ้าไม่มีใช้รูปแรกของ A4
+        const displayCover = p.cover_url || prodImgs[0] || 'https://via.placeholder.com/400x500?text=No+Image';
+
+        return { ...p, images: prodImgs, displayCover };
+      });
+
       renderProducts(currentCategoryProducts);
 
       if (prodIds && prodIds.length === 1 && currentCategoryProducts.length > 0) {
-        openA4Modal(currentCategoryProducts[0].title, currentCategoryProducts[0].image_url);
+        openA4Modal(currentCategoryProducts[0].title, currentCategoryProducts[0].images);
       }
     }
 
@@ -259,21 +277,27 @@
         return;
       }
 
-      grid.innerHTML = items.map(p => `
-        <div onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', '${p.image_url}')" class="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer group flex flex-col justify-between">
-          <div>
-            <div class="aspect-[1/1.414] rounded-xl overflow-hidden bg-slate-50 mb-3 border border-slate-100 relative flex items-center justify-center p-2 group-hover:border-sky-200 transition">
-              <img src="${p.image_url}" class="w-full h-full object-contain">
-              <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px] rounded-xl">
-                <i data-lucide="maximize-2" class="w-4 h-4"></i> ขยายดูรูป
+      grid.innerHTML = items.map(p => {
+        const imgCount = p.images.length;
+        const imagesJson = JSON.stringify(p.images).replace(/"/g, '&quot;');
+
+        return `
+          <div onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', ${imagesJson})" class="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer group flex flex-col justify-between">
+            <div>
+              <div class="aspect-[1/1.414] rounded-xl overflow-hidden bg-slate-50 mb-3 border border-slate-100 relative flex items-center justify-center p-2 group-hover:border-sky-200 transition">
+                <img src="${p.displayCover}" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px] rounded-xl">
+                  <i data-lucide="maximize-2" class="w-4 h-4"></i> ขยายดูรูป (${imgCount} หน้า)
+                </div>
+                ${imgCount > 0 ? `<span class="absolute top-2 left-2 px-2 py-0.5 bg-sky-600 text-white text-[10px] font-bold rounded-md shadow">${imgCount} รูป</span>` : ''}
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                <h4 class="font-extrabold text-xs sm:text-sm text-slate-800 group-hover:text-sky-600 transition truncate">${p.title}</h4>
               </div>
             </div>
-            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-              <h4 class="font-extrabold text-xs sm:text-sm text-slate-800 group-hover:text-sky-600 transition truncate">${p.title}</h4>
-            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
       lucide.createIcons();
     }
 
@@ -283,11 +307,31 @@
       renderProducts(filtered);
     }
 
-    function openA4Modal(title, imageUrl) {
+    function openA4Modal(title, images) {
+      activeModalImages = Array.isArray(images) ? images : [images];
+      currentModalImageIndex = 0;
       document.getElementById('modal-title').innerText = title;
-      document.getElementById('modal-img-a4').src = imageUrl;
+      updateModalImageView();
+
+      const navContainer = document.getElementById('modal-nav-container');
+      if (activeModalImages.length > 1) navContainer.classList.remove('hidden');
+      else navContainer.classList.add('hidden');
+
       document.getElementById('a4-modal').classList.remove('hidden');
       if (panzoomInstance) setTimeout(() => panzoomInstance.reset(), 50);
+    }
+
+    function updateModalImageView() {
+      document.getElementById('modal-img-a4').src = activeModalImages[currentModalImageIndex];
+      document.getElementById('modal-img-counter').innerText = `รูปที่ ${currentModalImageIndex + 1} / ${activeModalImages.length}`;
+      if (panzoomInstance) panzoomInstance.reset();
+    }
+
+    function nextModalImage() {
+      if (currentModalImageIndex < activeModalImages.length - 1) { currentModalImageIndex++; updateModalImageView(); }
+    }
+    function prevModalImage() {
+      if (currentModalImageIndex > 0) { currentModalImageIndex--; updateModalImageView(); }
     }
 
     function closeA4Modal() { document.getElementById('a4-modal').classList.add('hidden'); }
