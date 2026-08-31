@@ -210,7 +210,7 @@
 
             <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="cursor-pointer">
               <div class="h-52 bg-slate-50 relative overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
-                ${c.cover_url ? `<img src="${c.cover_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">` : `<i data-lucide="image" class="w-10 h-10 text-slate-300"></i>`}
+                ${c.cover_url ? `<img src="${c.cover_url}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500">` : `<i data-lucide="image" class="w-10 h-10 text-slate-300"></i>`}
               </div>
               <div class="p-5">
                 <h3 class="font-bold text-slate-900 text-lg group-hover:text-emerald-600 transition leading-snug">${c.name}</h3>
@@ -250,7 +250,6 @@
         const prodImgs = (images || []).filter(img => img.product_id === p.id).map(img => img.image_url);
         if (prodImgs.length === 0 && p.image_url) prodImgs.push(p.image_url);
         
-        // ใช้ภาพปกเฉพาะตัว (cover_url) ถ้ามี ถ้าไม่มีใช้รูปแรกของ A4
         const displayCover = p.cover_url || prodImgs[0] || 'https://via.placeholder.com/400x500?text=No+Image';
 
         return { ...p, images: prodImgs, displayCover };
