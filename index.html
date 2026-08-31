@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catalog Studio - แค็ตตาล็อกสินค้าออนไลน์</title>
+  <title>Catalog Manager - หน้าเลือกหมวดหมู่และสร้างลิงก์แชร์</title>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
   <style>
     body { font-family: 'Prompt', sans-serif; }
     .bg-dots-pattern {
@@ -17,381 +16,245 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col relative antialiased bg-dots-pattern pb-28">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col relative antialiased bg-dots-pattern pb-16">
 
-  <!-- Header -->
-  <header class="bg-white/90 backdrop-blur-md border-b border-emerald-100 sticky top-0 z-40 shadow-sm">
+  <!-- Glow Decorative Effects -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-tr from-sky-200/40 via-blue-100/40 to-indigo-200/40 blur-3xl pointer-events-none -z-10"></div>
+
+  <!-- Header Bar -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
-          <i data-lucide="layers" class="w-5 h-5"></i>
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-sky-500/20">
+          <i data-lucide="share-2" class="w-5 h-5"></i>
         </div>
         <div>
-          <span class="font-bold text-base text-slate-900 block leading-tight tracking-tight">Catalog Studio</span>
-          <span class="text-[11px] text-emerald-600 font-medium">แค็ตตาล็อกสินค้าและชิ้นงานทั้งหมด</span>
+          <span class="font-bold text-base text-slate-900 block leading-tight tracking-tight">Catalog Manager</span>
+          <span class="text-[11px] text-slate-500 font-medium">เลือกหมวดหมู่เพื่อสร้างลิงก์ส่งให้ลูกค้า</span>
         </div>
       </div>
-      <button id="btn-back-cat" onclick="showCategoryView()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2 border border-slate-200">
-        <i data-lucide="arrow-left" class="w-4 h-4 text-slate-500"></i>
-        <span>กลับไปหน้าหมวดหมู่</span>
-      </button>
+      
+      <div class="flex items-center gap-2">
+        <a href="admin.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2 border border-slate-200">
+          <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>
+          <span>ไปหน้าจัดการระบบ (Admin)</span>
+        </a>
+        <button id="btn-back-cat" onclick="showCategoryView()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2 border border-slate-200">
+          <i data-lucide="arrow-left" class="w-4 h-4 text-slate-500"></i>
+          <span>กลับหน้าเลือกหมวดหมู่</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
     
-    <!-- LEVEL 1: CATEGORIES -->
-    <div id="section-categories" class="space-y-8">
-      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-green-700 p-8 sm:p-10 text-white shadow-xl shadow-emerald-500/10">
+    <!-- LEVEL 1: CATEGORY SELECTION -->
+    <div id="section-categories" class="space-y-6">
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 p-8 sm:p-10 text-white shadow-xl shadow-sky-500/10">
         <div class="relative z-10 max-w-2xl space-y-3">
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-white/15 text-white backdrop-blur-md border border-white/20">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-200"></i> Interactive Catalog
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-yellow-300"></i>
+            Share Link Creator
           </span>
           <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-            เลือกชมแค็ตตาล็อกสินค้า <br><span class="text-emerald-100">และเลือกรายการที่สนใจ</span>
+            สร้างลิงก์ส่งให้ลูกค้า <br><span class="text-sky-100">เลือกหมวดหมู่ที่ต้องการแชร์</span>
           </h1>
-          <p class="text-emerald-100/90 text-xs sm:text-sm font-light leading-relaxed">
-            เลือกหมวดหมู่สินค้าที่คุณสนใจ ติ๊กเลือกรายการที่ต้องการ และสร้างลิงก์สรุปส่งให้เราได้ทันที
+          <p class="text-sky-100/90 text-xs sm:text-sm font-light leading-relaxed">
+            เลือกหมวดหมู่หรือติ๊กเลือกสินค้าเฉพาะชิ้นที่ต้องการส่งให้ลูกค้า จากนั้นกดปุ่มแชร์ด้านล่างเพื่อคัดลอกลิงก์
           </p>
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
-          <h2 class="text-base font-bold text-slate-900">รายการหมวดหมู่สินค้า</h2>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="select-all-cats" onchange="toggleSelectAllCats(this)" class="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500 cursor-pointer">
+          <label for="select-all-cats" class="text-xs font-bold text-slate-700 cursor-pointer">เลือกทุกหมวดหมู่</label>
         </div>
-        <div class="relative w-full sm:w-72">
-          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-          <input type="text" id="search-category-input" onkeyup="filterCategories()" placeholder="ค้นหาชื่อหมวดหมู่..." class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
-        </div>
+        <button onclick="shareSelectedCategories()" class="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md shadow-sky-500/20 transition flex items-center justify-center gap-2">
+          <i data-lucide="share-2" class="w-4 h-4"></i> คัดลอกลิงก์หมวดหมู่ที่เลือก
+        </button>
       </div>
 
       <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <p class="text-slate-400 text-sm col-span-full text-center py-12">กำลังโหลดรายการหมวดหมู่...</p>
+        <p class="text-slate-400 text-sm col-span-full text-center py-12">กำลังโหลดข้อมูล...</p>
       </div>
     </div>
 
-    <!-- LEVEL 2: PRODUCTS -->
+    <!-- LEVEL 2: PRODUCT SELECTION -->
     <div id="section-products" class="hidden space-y-6">
-      <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/80 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+      <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
-            <span class="cursor-pointer hover:text-emerald-600 font-medium" onclick="showCategoryView()">หมวดหมู่</span>
+            <span class="cursor-pointer hover:text-sky-600 font-medium" onclick="showCategoryView()">หมวดหมู่</span>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-            <span id="breadcrumb-cat" class="text-emerald-600 font-semibold">...</span>
+            <span id="current-cat-name" class="text-sky-600 font-semibold">...</span>
           </div>
-          <h2 id="current-cat-title" class="text-xl font-bold text-slate-900">ชื่อหมวดหมู่</h2>
+          <h2 class="text-xl font-bold text-slate-900">เลือกสินค้าเฉพาะรายการที่ต้องการแชร์</h2>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-          <div class="relative flex-1 sm:w-64">
-            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="search-input" onkeyup="filterProducts()" placeholder="ค้นหาชื่อสินค้าในหมวดนี้..." class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <div class="relative w-full sm:w-48">
+            <input type="text" id="search-input" onkeyup="filterProducts()" placeholder="ค้นหาสินค้า..." class="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
           </div>
-          <select id="filter-sort" onchange="filterProducts()" class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
-            <option value="newest">เรียงตาม: ล่าสุด</option>
-            <option value="name">เรียงตาม: ชื่อสินค้า (A-Z)</option>
-          </select>
-          <button onclick="toggleSelectAllProducts()" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs rounded-xl border border-emerald-200 transition">
-            เลือกทั้งหมด
+          <button onclick="shareSelectedProducts()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md shadow-sky-500/20 transition flex items-center gap-1.5 shrink-0">
+            <i data-lucide="share-2" class="w-3.5 h-3.5"></i> คัดลอกลิงก์สินค้าที่เลือก
           </button>
         </div>
       </div>
 
-      <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-        <p class="text-slate-400 text-sm col-span-full text-center py-12">กำลังโหลดรายการสินค้า...</p>
+      <div class="flex items-center gap-2 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        <input type="checkbox" id="select-all-prods" onchange="toggleSelectAllProds(this)" class="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500 cursor-pointer">
+        <label for="select-all-prods" class="text-xs font-bold text-slate-700 cursor-pointer">เลือกสินค้าทั้งหมดในหมวดหมู่นี้</label>
+      </div>
+
+      <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <p class="text-slate-400 text-sm col-span-full text-center py-12">กำลังโหลดสินค้า...</p>
       </div>
     </div>
 
   </main>
-
-  <!-- Sticky Bottom Share Bar -->
-  <div id="share-bar" class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md text-white border-t border-slate-800 p-4 z-40 shadow-2xl transition-all duration-300 transform translate-y-full">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-          <i data-lucide="check-square" class="w-5 h-5"></i>
-        </div>
-        <div>
-          <span class="font-bold text-sm text-white block">เลือกไว้ <span id="selected-count" class="text-emerald-400 font-extrabold text-base">0</span> รายการ</span>
-          <span class="text-xs text-slate-400">พร้อมสร้างลิงก์สำหรับส่งต่อ</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-3 w-full sm:w-auto">
-        <button onclick="clearSelections()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition border border-slate-700">ล้างการเลือก</button>
-        <button onclick="generateShareLink()" class="flex-1 sm:flex-none px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2">
-          <i data-lucide="share-2" class="w-4 h-4"></i> <span>คัดลอกลิงก์แชร์</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: IMAGE VIEWER -->
-  <div id="a4-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-6">
-    <div class="relative max-w-5xl w-full h-[92vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-      <div class="p-4 px-6 bg-slate-900 text-white flex items-center justify-between gap-3 border-b border-slate-800 shrink-0">
-        <h3 id="modal-title" class="font-bold text-sm text-slate-100 truncate">รายละเอียดสินค้า</h3>
-        <div class="flex items-center gap-2">
-          <div class="flex items-center bg-slate-800 rounded-xl p-1 gap-1 border border-slate-700">
-            <button onclick="zoomOut()" class="p-1.5 hover:bg-slate-700 text-slate-300 rounded-lg"><i data-lucide="zoom-out" class="w-4 h-4"></i></button>
-            <button onclick="resetZoom()" class="px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700 rounded-lg">100%</button>
-            <button onclick="zoomIn()" class="p-1.5 hover:bg-slate-700 text-slate-300 rounded-lg"><i data-lucide="zoom-in" class="w-4 h-4"></i></button>
-          </div>
-          <button onclick="closeA4Modal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-xl"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-      </div>
-      <div class="overflow-hidden flex-grow relative bg-slate-100 flex items-center justify-center p-4">
-        <div id="panzoom-element" class="w-full h-full flex items-center justify-center">
-          <img id="modal-img-a4" src="" class="max-w-full max-h-full object-contain shadow-xl rounded-lg bg-white">
-        </div>
-      </div>
-      <div id="modal-nav-container" class="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-white shrink-0 hidden">
-        <button onclick="prevModalImage()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i data-lucide="chevron-left" class="w-4 h-4"></i> รูปก่อนหน้า</button>
-        <span id="modal-img-counter" class="text-xs font-medium text-slate-300">หน้า 1 / 1</span>
-        <button onclick="nextModalImage()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5">รูปถัดไป <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
-      </div>
-    </div>
-  </div>
 
   <script>
     const SUPABASE_URL = "https://yzfjddyrewgajrvymhin.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6ZmpkZHlyZXdnYWpydnltaGluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTUxNjcsImV4cCI6MjEwMzQ3MTE2N30.C0n2fy1qw0E2qdHzLeid1QnkUuotxyHPD7Nb6gyZzmk";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let selectedCategoryIds = new Set();
-    let selectedProductIds = new Set();
-    let currentCategoryId = null;
-    let allCategoriesData = [];
+    let categoriesList = [];
     let currentCategoryProducts = [];
-    let panzoomInstance = null;
-    let activeModalImages = [];
-    let currentModalImageIndex = 0;
+    let activeCategoryId = null;
 
     lucide.createIcons();
 
     async function init() {
-      initPanzoom();
-      await fetchCategories();
-    }
-
-    function initPanzoom() {
-      const elem = document.getElementById('panzoom-element');
-      panzoomInstance = Panzoom(elem, { maxScale: 4, minScale: 0.8, contain: 'outside', canvas: true });
-      elem.parentElement.addEventListener('wheel', panzoomInstance.zoomWithWheel);
-    }
-
-    async function fetchCategories() {
-      const { data } = await supabaseClient.from('categories').select('*').order('id', { ascending: true });
-      allCategoriesData = data || [];
-      renderCategories(allCategoriesData);
-    }
-
-    function filterCategories() {
-      const query = document.getElementById('search-category-input').value.toLowerCase();
-      const filtered = allCategoriesData.filter(c => c.name.toLowerCase().includes(query));
-      renderCategories(filtered);
+      const { data } = await supabaseClient.from('categories').select('*').order('id', { ascending: false });
+      categoriesList = data || [];
+      renderCategories(categoriesList);
     }
 
     function renderCategories(items) {
       const grid = document.getElementById('category-grid');
       if (items.length === 0) {
-        grid.innerHTML = `<p class="text-slate-400 text-sm col-span-full text-center py-12">ไม่พบหมวดหมู่สินค้าที่คุณค้นหา</p>`;
+        grid.innerHTML = `<p class="text-slate-400 text-sm col-span-full text-center py-12">ยังไม่มีหมวดหมู่สินค้า</p>`;
         return;
       }
 
-      grid.innerHTML = items.map(c => {
-        const isChecked = selectedCategoryIds.has(c.id);
-        return `
-          <div class="bg-white rounded-3xl border ${isChecked ? 'border-emerald-500 shadow-lg ring-2 ring-emerald-500/20' : 'border-slate-200/90 shadow-sm'} hover:shadow-xl transition duration-300 relative group flex flex-col justify-between overflow-hidden">
-            <button onclick="toggleCategorySelect(${c.id}, event)" class="absolute top-3 right-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition ${isChecked ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-900/40 hover:bg-slate-900/60 text-white backdrop-blur-sm'}">
-              <i data-lucide="check" class="w-4 h-4"></i>
-            </button>
-
-            <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="cursor-pointer">
-              <div class="h-52 bg-slate-50 relative overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
-                ${c.cover_url ? `<img src="${c.cover_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">` : `<i data-lucide="image" class="w-10 h-10 text-slate-300"></i>`}
-              </div>
-              <div class="p-5">
-                <h3 class="font-bold text-slate-900 text-lg group-hover:text-emerald-600 transition leading-snug">${c.name}</h3>
-                <p class="text-xs text-slate-400 mt-1">คลิกเพื่อดูรายการสินค้าทั้งหมด</p>
+      grid.innerHTML = items.map(c => `
+        <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-300 flex flex-col justify-between overflow-hidden group">
+          <div>
+            <div class="h-44 bg-slate-50 relative flex items-center justify-center p-3 border-b border-slate-100">
+              ${c.cover_url ? `<img src="${c.cover_url}" class="w-full h-full object-contain">` : `<i data-lucide="image" class="w-8 h-8 text-slate-300"></i>`}
+              <div class="absolute top-3 right-3" onclick="event.stopPropagation();">
+                <input type="checkbox" value="${c.id}" class="cat-checkbox w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500 cursor-pointer shadow">
               </div>
             </div>
+            <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="p-4 cursor-pointer">
+              <h3 class="font-bold text-slate-900 text-sm group-hover:text-sky-600 transition truncate">${c.name}</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">คลิกเพื่อเลือกสินค้าเฉพาะรายการ</p>
+            </div>
           </div>
-        `;
-      }).join('');
+          <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="px-4 pb-4 pt-0 flex items-center justify-between text-xs font-semibold text-sky-600 cursor-pointer border-t border-slate-100 pt-3">
+            <span>เลือกเฉพาะสินค้า</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </div>
+        </div>
+      `).join('');
       lucide.createIcons();
     }
 
-    function toggleCategorySelect(id, e) {
-      e.stopPropagation();
-      if (selectedCategoryIds.has(id)) selectedCategoryIds.delete(id);
-      else selectedCategoryIds.add(id);
-      updateShareBar();
-      filterCategories();
+    function toggleSelectAllCats(master) {
+      document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = master.checked);
+    }
+
+    function shareSelectedCategories() {
+      const selected = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
+      const baseUrl = window.location.href.replace('index.html', 'view.html');
+      let link = baseUrl;
+      if (selected.length > 0) {
+        link = `${baseUrl.split('?')[0]}?cats=${selected.join(',')}`;
+      }
+      navigator.clipboard.writeText(link);
+      alert('คัดลอกลิงก์หมวดหมู่ที่เลือกสำเร็จ!\n\n' + link);
     }
 
     async function openCategory(catId, catName) {
-      currentCategoryId = catId;
-      document.getElementById('current-cat-title').innerText = catName;
-      document.getElementById('breadcrumb-cat').innerText = catName;
+      activeCategoryId = catId;
+      document.getElementById('current-cat-name').innerText = catName;
       document.getElementById('section-categories').classList.add('hidden');
       document.getElementById('section-products').classList.remove('hidden');
       document.getElementById('btn-back-cat').classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      await loadProducts();
-    }
 
-    async function loadProducts() {
-      const { data: products } = await supabaseClient.from('products').select('*').eq('category_id', currentCategoryId).eq('is_active', true).order('id', { ascending: false });
+      const { data: products } = await supabaseClient.from('products').select('*').eq('category_id', catId).eq('is_active', true).order('id', { ascending: false });
       const { data: images } = await supabaseClient.from('product_images').select('*').order('sort_order', { ascending: true });
 
       currentCategoryProducts = (products || []).map(p => {
         const prodImgs = (images || []).filter(img => img.product_id === p.id).map(img => img.image_url);
         if (prodImgs.length === 0 && p.image_url) prodImgs.push(p.image_url);
-        
-        // ใช้ภาพปกเฉพาะตัว (cover_url) ถ้ามี ถ้าไม่มีใช้รูปแรกของ A4
         const displayCover = p.cover_url || prodImgs[0] || 'https://via.placeholder.com/400x500?text=No+Image';
-
         return { ...p, images: prodImgs, displayCover };
       });
 
-      filterProducts();
+      renderProducts(currentCategoryProducts);
     }
 
     function showCategoryView() {
+      activeCategoryId = null;
       document.getElementById('section-categories').classList.remove('hidden');
       document.getElementById('section-products').classList.add('hidden');
       document.getElementById('btn-back-cat').classList.add('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      fetchCategories();
-    }
-
-    function filterProducts() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const sortType = document.getElementById('filter-sort').value;
-      let filtered = currentCategoryProducts.filter(p => p.title.toLowerCase().includes(query));
-
-      if (sortType === 'name') filtered.sort((a, b) => a.title.localeCompare(b.title, 'th'));
-      else filtered.sort((a, b) => b.id - a.id);
-
-      renderProducts(filtered);
     }
 
     function renderProducts(items) {
       const grid = document.getElementById('product-grid');
       if (items.length === 0) {
-        grid.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-3xl border border-slate-200"><p class="text-slate-500 font-medium text-sm">ไม่พบรายการสินค้าที่ค้นหา</p></div>`;
+        grid.innerHTML = `<p class="text-slate-400 text-sm col-span-full text-center py-12">ไม่พบรายการสินค้า</p>`;
         return;
       }
 
-      grid.innerHTML = items.map(p => {
-        const isChecked = selectedProductIds.has(p.id);
-        const imgCount = p.images.length;
-
-        return `
-          <div class="bg-white border ${isChecked ? 'border-emerald-500 shadow-md ring-2 ring-emerald-500/20' : 'border-slate-200/90 shadow-sm'} rounded-2xl p-3 hover:shadow-lg transition duration-300 relative group flex flex-col justify-between">
-            <button onclick="toggleProductSelect(${p.id}, event)" class="absolute top-4 right-4 z-20 w-7 h-7 rounded-full flex items-center justify-center transition ${isChecked ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-900/40 hover:bg-slate-900/60 text-white backdrop-blur-sm'}">
-              <i data-lucide="check" class="w-3.5 h-3.5"></i>
-            </button>
-
-            <div>
-              <div onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', ${JSON.stringify(p.images).replace(/"/g, '&quot;')})" class="aspect-[1/1.414] rounded-xl overflow-hidden bg-slate-50 mb-3 border border-slate-100 relative flex items-center justify-center p-2 group-hover:border-emerald-200 transition cursor-pointer">
-                <img src="${p.displayCover}" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 rounded-xl">
-                  <i data-lucide="maximize-2" class="w-4 h-4"></i> ขยายดูรูป (${imgCount} หน้า)
-                </div>
-                ${imgCount > 0 ? `<span class="absolute top-2 left-2 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md shadow">${imgCount} รูป</span>` : ''}
-              </div>
-              <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center mb-1">
-                <h4 class="font-extrabold text-xs sm:text-sm text-slate-800 truncate">${p.title}</h4>
+      grid.innerHTML = items.map(p => `
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-300 flex flex-col justify-between overflow-hidden relative group">
+          <div>
+            <!-- ปรับกรอบรูปสินค้าให้รองรับทุกสัดส่วนด้วย object-contain -->
+            <div class="h-40 bg-slate-50 relative flex items-center justify-center p-2 border-b border-slate-100">
+              <img src="${p.displayCover}" class="w-full h-full object-contain">
+              <span class="absolute top-2 left-2 px-2 py-0.5 bg-sky-600 text-white text-[10px] font-bold rounded-md shadow">${p.images.length} รูป</span>
+              <div class="absolute top-2 right-2">
+                <input type="checkbox" value="${p.id}" class="prod-checkbox w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500 cursor-pointer shadow">
               </div>
             </div>
-
-            <div class="text-center pt-2">
-              <span onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', ${JSON.stringify(p.images).replace(/"/g, '&quot;')})" class="text-[11px] font-semibold text-emerald-600 hover:underline cursor-pointer">คลิกดูภาพเต็ม A4</span>
+            <div class="p-3 text-center bg-slate-50">
+              <h4 class="font-bold text-slate-800 text-xs truncate">${p.title}</h4>
             </div>
           </div>
-        `;
-      }).join('');
+        </div>
+      `).join('');
       lucide.createIcons();
     }
 
-    function toggleProductSelect(id, e) {
-      e.stopPropagation();
-      if (selectedProductIds.has(id)) selectedProductIds.delete(id);
-      else selectedProductIds.add(id);
-      updateShareBar();
-      filterProducts();
+    function toggleSelectAllProds(master) {
+      document.querySelectorAll('.prod-checkbox').forEach(cb => cb.checked = master.checked);
     }
 
-    function toggleSelectAllProducts() {
-      const allSelected = currentCategoryProducts.every(p => selectedProductIds.has(p.id));
-      if (allSelected) currentCategoryProducts.forEach(p => selectedProductIds.delete(p.id));
-      else currentCategoryProducts.forEach(p => selectedProductIds.add(p.id));
-      updateShareBar();
-      filterProducts();
-    }
-
-    function updateShareBar() {
-      const totalCount = selectedCategoryIds.size + selectedProductIds.size;
-      document.getElementById('selected-count').innerText = totalCount;
-      const bar = document.getElementById('share-bar');
-      if (totalCount > 0) bar.classList.remove('translate-y-full');
-      else bar.classList.add('translate-y-full');
-    }
-
-    function clearSelections() {
-      selectedCategoryIds.clear();
-      selectedProductIds.clear();
-      updateShareBar();
-      filterCategories();
-      if (currentCategoryProducts.length > 0) filterProducts();
-    }
-
-    function generateShareLink() {
-      const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'view.html';
-      let shareUrl = baseUrl;
-      if (selectedProductIds.size > 0) {
-        shareUrl = `${baseUrl}?cat=${currentCategoryId}&prods=${Array.from(selectedProductIds).join(',')}`;
-      } else if (selectedCategoryIds.size > 0) {
-        shareUrl = `${baseUrl}?cats=${Array.from(selectedCategoryIds).join(',')}`;
+    function shareSelectedProducts() {
+      const selected = Array.from(document.querySelectorAll('.prod-checkbox:checked')).map(cb => cb.value);
+      if (selected.length === 0) {
+        alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
+        return;
       }
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        alert('คัดลอกลิงก์สำหรับแชร์ให้ลูกค้าเรียบร้อยแล้ว!\n\n' + shareUrl);
-      });
+      const baseUrl = window.location.href.replace('index.html', 'view.html');
+      const link = `${baseUrl.split('?')[0]}?cat=${activeCategoryId}&prods=${selected.join(',')}`;
+      navigator.clipboard.writeText(link);
+      alert('คัดลอกลิงก์สินค้าที่เลือกสำเร็จ!\n\n' + link);
     }
 
-    function openA4Modal(title, images) {
-      activeModalImages = Array.isArray(images) ? images : [images];
-      currentModalImageIndex = 0;
-      document.getElementById('modal-title').innerText = title;
-      updateModalImageView();
-      
-      const navContainer = document.getElementById('modal-nav-container');
-      if (activeModalImages.length > 1) navContainer.classList.remove('hidden');
-      else navContainer.classList.add('hidden');
-
-      document.getElementById('a4-modal').classList.remove('hidden');
-      if (panzoomInstance) setTimeout(() => panzoomInstance.reset(), 50);
+    function filterProducts() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filtered = currentCategoryProducts.filter(p => p.title.toLowerCase().includes(query));
+      renderProducts(filtered);
     }
-
-    function updateModalImageView() {
-      document.getElementById('modal-img-a4').src = activeModalImages[currentModalImageIndex];
-      document.getElementById('modal-img-counter').innerText = `รูปที่ ${currentModalImageIndex + 1} / ${activeModalImages.length}`;
-      if (panzoomInstance) panzoomInstance.reset();
-    }
-
-    function nextModalImage() {
-      if (currentModalImageIndex < activeModalImages.length - 1) { currentModalImageIndex++; updateModalImageView(); }
-    }
-    function prevModalImage() {
-      if (currentModalImageIndex > 0) { currentModalImageIndex--; updateModalImageView(); }
-    }
-    function closeA4Modal() { document.getElementById('a4-modal').classList.add('hidden'); }
-    function zoomIn() { if (panzoomInstance) panzoomInstance.zoomIn(); }
-    function zoomOut() { if (panzoomInstance) panzoomInstance.zoomOut(); }
-    function resetZoom() { if (panzoomInstance) panzoomInstance.reset(); }
 
     init();
   </script>
