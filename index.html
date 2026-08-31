@@ -338,11 +338,14 @@
             </button>
 
             <div>
-              <div onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', ${JSON.stringify(p.images).replace(/"/g, '&quot;')})" class="aspect-[1/1.414] rounded-xl overflow-hidden bg-slate-50 mb-3 border border-slate-100 relative flex items-center justify-center p-2 group-hover:border-emerald-200 transition cursor-pointer">
-                <img src="${coverImg}" class="w-full h-full object-contain">
-                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px] rounded-xl">
-                  <i data-lucide="maximize-2" class="w-4 h-4"></i> ขยายดูรูป (${imgCount} หน้า)
-                </div>
+              <!-- ค้นหาบรรทัดนี้ในฟังก์ชัน renderProducts -->
+<div onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', ${JSON.stringify(p.images).replace(/"/g, '&quot;')})" class="w-full h-64 bg-slate-50 mb-3 rounded-xl border border-slate-100 relative overflow-hidden flex items-center justify-center p-3 group-hover:border-emerald-200 transition cursor-pointer">
+  <img src="${coverImg}" class="w-full h-full object-contain">
+  <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px] rounded-xl">
+    <i data-lucide="maximize-2" class="w-4 h-4"></i> ขยายดูรูป (${imgCount} หน้า)
+  </div>
+  ${imgCount > 1 ? `<span class="absolute top-2 left-2 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md shadow">มี ${imgCount} รูป</span>` : ''}
+</div>
                 ${imgCount > 1 ? `<span class="absolute top-2 left-2 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md shadow">มี ${imgCount} รูป</span>` : ''}
               </div>
               <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center mb-1">
