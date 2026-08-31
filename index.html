@@ -297,7 +297,7 @@
 
             <div>
               <div onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', ${JSON.stringify(p.images).replace(/"/g, '&quot;')})" class="aspect-[1/1.414] rounded-xl overflow-hidden bg-slate-50 mb-3 border border-slate-100 relative flex items-center justify-center p-2 group-hover:border-emerald-200 transition cursor-pointer">
-                <img src="${p.displayCover}" class="w-full h-full object-cover">
+                <img src="${p.displayCover}" class="w-full h-full object-contain">
                 <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 rounded-xl">
                   <i data-lucide="maximize-2" class="w-4 h-4"></i> ขยายดูรูป (${imgCount} หน้า)
                 </div>
