@@ -10,9 +10,19 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     body { font-family: 'Prompt', sans-serif; }
+    
+    /* ซ่อน Scrollbar ขณะซูมภาพเพื่อความสะอาดตา */
+    .zoom-container::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .zoom-container::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
   </style>
 </head>
-<body class="bg-[#f2f9f6] text-slate-800 min-h-screen flex flex-col">
+<body class="bg-[#f2f9f6] text-slate-800 min-h-screen flex flex-col pb-24 select-none">
 
   <!-- Header -->
   <header class="bg-white border-b border-emerald-100 sticky top-0 z-30 shadow-sm">
@@ -44,6 +54,7 @@
           <i data-lucide="folder-grid" class="w-5 h-5 text-emerald-600"></i>
           หมวดหมู่สินค้าทั้งหมด
         </h2>
+        <p class="text-xs text-slate-400">คลิกที่การ์ดเพื่อดูสินค้า หรือติ๊กถูกที่มุมการ์ดเพื่อเลือกทั้งหมวดหมู่</p>
       </div>
 
       <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -66,6 +77,12 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
+          <!-- ปุ่มเลือกทั้งหมดในหมวดนี้ -->
+          <button onclick="toggleSelectAllCurrentCategory()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold px-3.5 py-2.5 rounded-2xl transition flex items-center gap-1.5 border border-emerald-200">
+            <i data-lucide="check-square" class="w-4 h-4"></i>
+            <span>เลือกทั้งหมดในหมวดนี้</span>
+          </button>
+
           <!-- ช่องค้นหา -->
           <div class="relative flex-grow sm:w-64">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
@@ -90,25 +107,106 @@
 
   </main>
 
-  <!-- Modal สำหรับดูภาพ A4 ใหญ่ -->
-  <div id="a4-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="relative max-w-3xl w-full max-h-[92vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-      <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
-        <h3 id="modal-title" class="font-bold text-sm truncate pr-4">แสดงรูปภาพสินค้า A4</h3>
-        <button onclick="closeA4Modal()" class="bg-slate-800 hover:bg-slate-700 text-white p-1.5 rounded-xl transition">
+  <!-- FLOATING SELECTION BAR (แถบสรุปด้านล่างเมื่อมีการติ๊กเลือกสินค้า) -->
+  <div id="floating-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl z-40 flex items-center gap-4 transition-all duration-300 transform translate-y-32 opacity-0 border border-slate-800">
+    <div class="flex items-center gap-2.5">
+      <div class="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-xs shadow-md shadow-emerald-900" id="selected-count">0</div>
+      <span class="text-xs sm:text-sm font-medium">รายการที่เลือกไว้</span>
+    </div>
+    
+    <div class="h-4 w-px bg-slate-700"></div>
+
+    <button onclick="openSummaryModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+      <i data-lucide="list-checks" class="w-3.5 h-3.5 text-emerald-400"></i>
+      <span>ดูรายการที่เลือก</span>
+    </button>
+
+    <button onclick="copyShareLink()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-md shadow-emerald-900/40">
+      <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+      <span>คัดลอกลิงก์แชร์</span>
+    </button>
+  </div>
+
+  <!-- MODAL สรุปรายการสินค้าที่เลือก -->
+  <div id="summary-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">รายการสินค้าที่เลือกไว้</h3>
+          <p class="text-xs text-slate-400">เตรียมลิงก์ส่งสรุปรายการให้ลูกค้า</p>
+        </div>
+        <button onclick="closeSummaryModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-xl">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="overflow-y-auto p-4 flex-grow flex items-center justify-center bg-slate-100">
-        <div class="w-full max-w-xl aspect-[1/1.414] bg-white shadow-xl rounded-xl overflow-hidden border border-slate-300 relative flex items-center justify-center">
-          <img id="modal-img-a4" src="" class="w-full h-full object-contain">
+
+      <div id="summary-items-list" class="overflow-y-auto my-4 space-y-2.5 flex-grow pr-1">
+        <!-- รายการสินค้าที่ติ๊กเลือกจะถูกใส่ที่นี่ -->
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex flex-col gap-2.5">
+        <div class="flex items-center justify-between text-xs text-slate-500">
+          <span>รวมทั้งหมด: <strong id="summary-total-count" class="text-emerald-600 font-bold">0</strong> รายการ</span>
+          <button onclick="clearAllSelections()" class="text-red-500 hover:underline">ล้างการเลือกทั้งหมด</button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="copyShareLink()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+            <span>คัดลอกลิงก์</span>
+          </button>
+          <button onclick="shareToLine()" class="w-full bg-[#06C755] hover:bg-[#05b34c] text-white py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            <span>ส่งเข้า LINE</span>
+          </button>
         </div>
       </div>
-      <div id="modal-nav" class="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-white">
+    </div>
+  </div>
+
+  <!-- Modal สำหรับดูภาพ A4 ใหญ่ + พร้อมระบบซูมขยาย -->
+  <div id="a4-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="relative max-w-4xl w-full h-[92vh] bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+      
+      <!-- Top Control Bar -->
+      <div class="p-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 z-10">
+        <h3 id="modal-title" class="font-bold text-sm truncate pr-4 text-emerald-400">แสดงรูปภาพสินค้า A4</h3>
+        
+        <!-- แถบเครื่องมือซูม -->
+        <div class="flex items-center gap-2">
+          <div class="bg-slate-800 px-2 py-1 rounded-xl flex items-center gap-1 text-slate-200 border border-slate-700">
+            <button onclick="zoomOut()" title="ซูมออก" class="p-1 hover:bg-slate-700 rounded-lg transition text-slate-300 hover:text-white">
+              <i data-lucide="zoom-out" class="w-4 h-4"></i>
+            </button>
+            <span id="zoom-level-text" class="text-[11px] font-mono px-1.5 w-12 text-center select-none font-bold">100%</span>
+            <button onclick="zoomIn()" title="ซูมเข้า" class="p-1 hover:bg-slate-700 rounded-lg transition text-slate-300 hover:text-white">
+              <i data-lucide="zoom-in" class="w-4 h-4"></i>
+            </button>
+            <button onclick="resetZoom()" title="ขนาดปกติ" class="p-1 hover:bg-slate-700 rounded-lg transition text-slate-300 hover:text-white border-l border-slate-700 pl-2 ml-1">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <button onclick="closeA4Modal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-xl transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Area แสดงภาพ A4 ที่รองรับการซูมและคลิกลาก -->
+      <div id="zoom-viewport" class="zoom-container overflow-auto flex-grow flex items-center justify-center bg-slate-950 p-4 relative cursor-grab active:cursor-grabbing">
+        <div id="zoom-wrapper" class="transition-transform duration-150 ease-out inline-block max-w-full">
+          <img id="modal-img-a4" src="" class="max-h-[80vh] w-auto object-contain rounded-lg shadow-2xl pointer-events-none select-none">
+        </div>
+      </div>
+
+      <!-- Bottom Nav Bar -->
+      <div id="modal-nav" class="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-white z-10">
         <button onclick="prevModalImg()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold transition">รูปก่อนหน้า</button>
-        <span id="modal-counter" class="text-xs text-slate-300">1 / 1</span>
+        <span id="modal-counter" class="text-xs text-slate-400">1 / 1</span>
         <button onclick="nextModalImg()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold transition">รูปถัดไป</button>
       </div>
+
     </div>
   </div>
 
@@ -121,16 +219,26 @@
     let currentCategoryId = null;
     let currentCategoryProducts = [];
     
+    // เก็บรายการสินค้าที่ถูกติ๊กเลือกไว้ (Map: prodId -> prodObject)
+    let selectedProductsMap = new Map();
+
     let activeModalImages = [];
     let modalImageIndex = 0;
+
+    // Zoom State
+    let zoomScale = 1;
+    let isDragging = false;
+    let startX, startY, scrollLeft, scrollTop;
 
     lucide.createIcons();
 
     async function init() {
+      setupZoomControls();
       await loadCategories();
+      await checkUrlSharedItems();
     }
 
-    // โหลดหมวดหมู่ทั้งหมด (เรียง เก่า -> ใหม่)
+    // โหลดหมวดหมู่ทั้งหมด
     async function loadCategories() {
       const { data, error } = await supabaseClient
         .from('categories')
@@ -142,33 +250,83 @@
       renderCategories(categories);
     }
 
-    function renderCategories(items) {
+    // แสดงหมวดหมู่ทั้งหมด + เพิ่ม Checkbox เลือกทั้งหมวดหมู่ที่มุมการ์ด
+    async function renderCategories(items) {
       const grid = document.getElementById('category-grid');
       if (items.length === 0) {
         grid.innerHTML = `<p class="text-slate-400 text-sm col-span-full text-center py-12">ยังไม่มีหมวดหมู่สินค้า</p>`;
         return;
       }
 
-      grid.innerHTML = items.map(c => `
-        <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer group flex flex-col">
-          <div class="h-48 bg-slate-50 relative overflow-hidden flex items-center justify-center p-2 border-b border-slate-100">
-            ${c.cover_url 
-              ? `<img src="${c.cover_url}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500">` 
-              : `<div class="w-full h-full flex flex-col items-center justify-center text-slate-300 bg-slate-50"><i data-lucide="folder" class="w-12 h-12 mb-2"></i><span class="text-xs">ไม่มีภาพปก</span></div>`
-            }
-          </div>
-          <div class="p-5 flex-grow flex items-center justify-between bg-white">
-            <div>
-              <h4 class="font-bold text-slate-900 text-base group-hover:text-emerald-600 transition">${c.name}</h4>
-              <p class="text-xs text-slate-400 mt-1">คลิกเพื่อเข้าดูสินค้าในหมวด</p>
+      grid.innerHTML = items.map(c => {
+        const selectedCountInCat = Array.from(selectedProductsMap.values()).filter(p => p.category_id === c.id).length;
+        const isSelected = selectedCountInCat > 0;
+
+        return `
+          <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="bg-white rounded-[24px] overflow-hidden border ${isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-100'} shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer group flex flex-col relative">
+            
+            <!-- Checkbox ติ๊กเลือกทั้งหมวดหมู่ -->
+            <div onclick="toggleCategorySelect(event, ${c.id})" class="absolute top-3 right-3 z-20 bg-white/90 backdrop-blur-sm p-1.5 rounded-xl shadow-md hover:scale-110 transition flex items-center gap-1.5" title="ติ๊กเพื่อเลือกสินค้าทั้งหมดในหมวดนี้">
+              <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded cursor-pointer border-slate-300 focus:ring-0">
+              ${selectedCountInCat > 0 ? `<span class="text-[11px] font-bold text-emerald-600 pr-1">${selectedCountInCat}</span>` : ''}
             </div>
-            <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+
+            <!-- รูปปกหมวดหมู่ -->
+            <div class="h-48 bg-slate-50 relative overflow-hidden flex items-center justify-center p-2 border-b border-slate-100">
+              ${c.cover_url 
+                ? `<img src="${c.cover_url}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500">` 
+                : `<div class="w-full h-full flex flex-col items-center justify-center text-slate-300 bg-slate-50"><i data-lucide="folder" class="w-12 h-12 mb-2"></i><span class="text-xs">ไม่มีภาพปก</span></div>`
+              }
             </div>
+
+            <!-- ข้อความด้านล่างการ์ด + ปุ่มวงกลมสีเขียว -->
+            <div class="p-4 flex-grow flex items-center justify-between bg-white">
+              <div>
+                <h4 class="font-bold text-slate-800 text-sm leading-tight group-hover:text-emerald-600 transition">${c.name}</h4>
+                <p class="text-[11px] text-slate-400 mt-1">คลิกเพื่อเข้าดูสินค้าในหมวด</p>
+              </div>
+              <div class="w-8 h-8 rounded-full bg-[#EAF5EE] text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition duration-200 flex-shrink-0">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </div>
+            </div>
+
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
       lucide.createIcons();
+    }
+
+    // ติ๊กเลือกสินค้าทั้งหมดในหมวดหมู่นั้นจากหน้าหมวดหมู่
+    async function toggleCategorySelect(event, catId) {
+      if (event) event.stopPropagation();
+
+      // ดึงสินค้าในหมวดหมู่นี้จาก Supabase (หากยังไม่มีข้อมูล)
+      const { data: prods, error } = await supabaseClient
+        .from('products')
+        .select(`*, product_images(*)`)
+        .eq('category_id', catId)
+        .eq('is_active', true);
+
+      if (error || !prods) return;
+
+      const categoryProducts = prods.map(p => {
+        let prodImgs = (p.product_images || []).sort((a, b) => a.sort_order - b.sort_order);
+        if (prodImgs.length === 0 && p.image_url) prodImgs.push({ id: 'legacy', image_url: p.image_url, sort_order: 0 });
+        return { ...p, images: prodImgs };
+      });
+
+      // เช็คว่าเลือกไว้ครบหรือยัง
+      const allSelected = categoryProducts.every(p => selectedProductsMap.has(p.id));
+
+      categoryProducts.forEach(p => {
+        if (allSelected) {
+          selectedProductsMap.delete(p.id);
+        } else {
+          selectedProductsMap.set(p.id, p);
+        }
+      });
+
+      updateSelectionUI();
     }
 
     function openCategory(catId, catName) {
@@ -186,9 +344,10 @@
       document.getElementById('section-categories').classList.remove('hidden');
       document.getElementById('section-products').classList.add('hidden');
       document.getElementById('btn-back-categories').classList.add('hidden');
+      renderCategories(categories);
     }
 
-    // ดึงข้อมูลสินค้า (ตั้งค่าเริ่มต้นเป็น เก่า -> ใหม่: ascending: true)
+    // ดึงข้อมูลสินค้าในหมวดหมู่
     async function loadCategoryProducts(catId) {
       const isAsc = document.getElementById('sort-order').value === 'asc';
 
@@ -200,7 +359,7 @@
         `)
         .eq('category_id', catId)
         .eq('is_active', true)
-        .order('id', { ascending: isAsc }); // 🔥 เรียง เก่า -> ใหม่ (เพิ่มใหม่ตามหลัง)
+        .order('id', { ascending: isAsc });
 
       if (error) return console.error("เกิดข้อผิดพลาดในการดึงสินค้า:", error.message);
 
@@ -223,50 +382,244 @@
       }
 
       grid.innerHTML = items.map(p => {
-        // 🔥 ดึงรูปปก cover_url มาแสดงก่อน ถ้าไม่มีใช้ image_url -> รูป A4 ใบแรก
         const coverImg = p.cover_url || p.image_url || p.images[0]?.image_url || 'https://via.placeholder.com/400x500?text=No+Image';
         const imgCount = p.images.length;
+        const isSelected = selectedProductsMap.has(p.id);
 
         return `
-          <div class="bg-white border border-slate-200 rounded-3xl p-3 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between">
+          <div class="bg-white border ${isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'} rounded-3xl p-3 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between relative">
+            
+            <div onclick="toggleProductSelect(event, ${p.id})" class="absolute top-5 right-5 z-20 cursor-pointer bg-white/90 backdrop-blur-sm p-1 rounded-xl shadow-md hover:scale-110 transition">
+              <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-5 h-5 text-emerald-600 rounded-lg cursor-pointer border-slate-300 focus:ring-0">
+            </div>
+
             <div>
               <div onclick="openA4ModalByProdId(${p.id})" class="aspect-[1/1.414] rounded-2xl overflow-hidden bg-slate-50 mb-3 border border-slate-200 relative cursor-pointer hover:opacity-95 transition flex items-center justify-center p-1 group">
                 <img src="${coverImg}" class="w-full h-full object-contain">
-                <div class="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-medium gap-1 rounded-2xl">
-                  <i data-lucide="maximize-2" class="w-4 h-4"></i> ขยายรูป
+                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-medium gap-1 rounded-2xl">
+                  <i data-lucide="zoom-in" class="w-4 h-4"></i> ซูมดูภาพ A4
                 </div>
-                ${imgCount > 1 ? `<span class="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">${imgCount} หน้า</span>` : ''}
+                ${imgCount > 1 ? `<span class="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">${imgCount} หน้า</span>` : ''}
               </div>
               <h4 class="font-bold text-sm text-slate-800 truncate px-1 mb-3">${p.title}</h4>
             </div>
 
-            <button onclick="openA4ModalByProdId(${p.id})" class="w-full text-center text-xs font-semibold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 py-2.5 rounded-2xl transition">
-              คลิกดูภาพเต็ม A4 ${imgCount > 1 ? `(${imgCount} หน้า)` : ''}
-            </button>
+            <div class="grid grid-cols-5 gap-1.5">
+              <button onclick="openA4ModalByProdId(${p.id})" class="col-span-3 text-center text-xs font-semibold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 py-2.5 rounded-2xl transition truncate px-1 flex items-center justify-center gap-1">
+                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+                <span>ดูภาพเต็ม A4</span>
+              </button>
+              
+              <button onclick="toggleProductSelect(event, ${p.id})" class="col-span-2 text-xs font-semibold ${isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} py-2.5 rounded-2xl transition flex items-center justify-center gap-1">
+                <i data-lucide="${isSelected ? 'check' : 'plus'}" class="w-3.5 h-3.5"></i>
+                <span>${isSelected ? 'เลือกแล้ว' : 'เลือก'}</span>
+              </button>
+            </div>
+
           </div>
         `;
       }).join('');
       lucide.createIcons();
     }
 
-    function handleSortChange() {
+    // ================= ระบบจัดการการติ๊กเลือกสินค้า =================
+
+    function toggleProductSelect(event, prodId) {
+      if (event) event.stopPropagation();
+
+      const prod = currentCategoryProducts.find(p => p.id === prodId) || selectedProductsMap.get(prodId);
+      if (!prod) return;
+
+      if (selectedProductsMap.has(prodId)) {
+        selectedProductsMap.delete(prodId);
+      } else {
+        selectedProductsMap.set(prodId, prod);
+      }
+
+      updateSelectionUI();
+    }
+
+    function toggleSelectAllCurrentCategory() {
+      const allSelected = currentCategoryProducts.every(p => selectedProductsMap.has(p.id));
+
+      currentCategoryProducts.forEach(p => {
+        if (allSelected) {
+          selectedProductsMap.delete(p.id);
+        } else {
+          selectedProductsMap.set(p.id, p);
+        }
+      });
+
+      updateSelectionUI();
+    }
+
+    function clearAllSelections() {
+      selectedProductsMap.clear();
+      updateSelectionUI();
+      closeSummaryModal();
+    }
+
+    function updateSelectionUI() {
+      const count = selectedProductsMap.size;
+      const bar = document.getElementById('floating-bar');
+      document.getElementById('selected-count').innerText = count;
+
+      if (count > 0) {
+        bar.classList.remove('translate-y-32', 'opacity-0');
+      } else {
+        bar.classList.add('translate-y-32', 'opacity-0');
+      }
+
       if (currentCategoryId) {
-        loadCategoryProducts(currentCategoryId);
+        renderProducts(currentCategoryProducts);
+      } else {
+        renderCategories(categories);
       }
     }
 
-    function filterProducts() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const filtered = currentCategoryProducts.filter(p => p.title.toLowerCase().includes(query));
-      renderProducts(filtered);
+    function openSummaryModal() {
+      const container = document.getElementById('summary-items-list');
+      const items = Array.from(selectedProductsMap.values());
+      document.getElementById('summary-total-count').innerText = items.length;
+
+      if (items.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-xs text-center py-6">ยังไม่มีรายการที่เลือกไว้</p>`;
+      } else {
+        container.innerHTML = items.map(p => `
+          <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-100 rounded-2xl gap-3">
+            <div class="flex items-center gap-3 overflow-hidden">
+              <img src="${p.cover_url || p.image_url || (p.images && p.images[0]?.image_url)}" class="w-10 h-10 object-contain rounded-lg bg-white border border-slate-200">
+              <span class="text-xs font-semibold text-slate-800 truncate">${p.title}</span>
+            </div>
+            <button onclick="toggleProductSelect(null, ${p.id}); openSummaryModal();" class="text-slate-400 hover:text-red-500 p-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `).join('');
+      }
+      lucide.createIcons();
+      document.getElementById('summary-modal').classList.remove('hidden');
+    }
+
+    function closeSummaryModal() {
+      document.getElementById('summary-modal').classList.add('hidden');
+    }
+
+    function copyShareLink() {
+      if (selectedProductsMap.size === 0) return alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
+      const ids = Array.from(selectedProductsMap.keys()).join(',');
+      const shareUrl = `${window.location.origin}${window.location.pathname}?items=${ids}`;
+      
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert('คัดลอกลิงก์เรียบร้อยแล้ว! สามารถนำลิงก์นี้ส่งให้ลูกค้าได้ทันที');
+      });
+    }
+
+    function shareToLine() {
+      if (selectedProductsMap.size === 0) return alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
+      const ids = Array.from(selectedProductsMap.keys()).join(',');
+      const shareUrl = `${window.location.origin}${window.location.pathname}?items=${ids}`;
+      window.open(`https://line.me/R/msg/text/?รายการสินค้าที่สนใจ: ${encodeURIComponent(shareUrl)}`, '_blank');
+    }
+
+    async function checkUrlSharedItems() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const itemsParam = urlParams.get('items');
+
+      if (itemsParam) {
+        const ids = itemsParam.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
+        if (ids.length > 0) {
+          const { data, error } = await supabaseClient
+            .from('products')
+            .select(`*, product_images(*)`)
+            .in('id', ids);
+
+          if (!error && data) {
+            data.forEach(p => {
+              let prodImgs = (p.product_images || []).sort((a, b) => a.sort_order - b.sort_order);
+              if (prodImgs.length === 0 && p.image_url) prodImgs.push({ id: 'legacy', image_url: p.image_url, sort_order: 0 });
+              selectedProductsMap.set(p.id, { ...p, images: prodImgs });
+            });
+            updateSelectionUI();
+            openSummaryModal();
+          }
+        }
+      }
+    }
+
+    // ================= ระบบซูมภาพ A4 (ZOOM & PAN SYSTEM) =================
+
+    function setupZoomControls() {
+      const viewport = document.getElementById('zoom-viewport');
+
+      // ซูมภาพด้วย Scroll Wheel
+      viewport.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+          zoomIn();
+        } else {
+          zoomOut();
+        }
+      }, { passive: false });
+
+      // คลิกลากเพื่อเลื่อนภาพ (Drag & Pan)
+      viewport.addEventListener('mousedown', (e) => {
+        if (zoomScale <= 1) return;
+        isDragging = true;
+        startX = e.pageX - viewport.offsetLeft;
+        startY = e.pageY - viewport.offsetTop;
+        scrollLeft = viewport.scrollLeft;
+        scrollTop = viewport.scrollTop;
+      });
+
+      viewport.addEventListener('mouseleave', () => isDragging = false);
+      viewport.addEventListener('mouseup', () => isDragging = false);
+
+      viewport.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - viewport.offsetLeft;
+        const y = e.pageY - viewport.offsetTop;
+        const walkX = (x - startX) * 1.5;
+        const walkY = (y - startY) * 1.5;
+        viewport.scrollLeft = scrollLeft - walkX;
+        viewport.scrollTop = scrollTop - walkY;
+      });
+    }
+
+    function zoomIn() {
+      if (zoomScale < 3.5) {
+        zoomScale += 0.25;
+        applyZoom();
+      }
+    }
+
+    function zoomOut() {
+      if (zoomScale > 0.75) {
+        zoomScale -= 0.25;
+        applyZoom();
+      }
+    }
+
+    function resetZoom() {
+      zoomScale = 1;
+      applyZoom();
+    }
+
+    function applyZoom() {
+      const wrapper = document.getElementById('zoom-wrapper');
+      const zoomText = document.getElementById('zoom-level-text');
+      wrapper.style.transform = `scale(${zoomScale})`;
+      zoomText.innerText = `${Math.round(zoomScale * 100)}%`;
     }
 
     function openA4ModalByProdId(prodId) {
-      const prod = currentCategoryProducts.find(p => p.id === prodId);
+      const prod = currentCategoryProducts.find(p => p.id === prodId) || selectedProductsMap.get(prodId);
       if (!prod) return;
       activeModalImages = prod.images.map(i => i.image_url);
       modalImageIndex = 0;
       document.getElementById('modal-title').innerText = prod.title;
+      resetZoom();
       updateModalImageDisplay();
       document.getElementById('a4-modal').classList.remove('hidden');
     }
@@ -282,6 +635,7 @@
     function nextModalImg() {
       if (modalImageIndex < activeModalImages.length - 1) {
         modalImageIndex++;
+        resetZoom();
         updateModalImageDisplay();
       }
     }
@@ -289,11 +643,27 @@
     function prevModalImg() {
       if (modalImageIndex > 0) {
         modalImageIndex--;
+        resetZoom();
         updateModalImageDisplay();
       }
     }
 
-    function closeA4Modal() { document.getElementById('a4-modal').classList.add('hidden'); }
+    function closeA4Modal() { 
+      document.getElementById('a4-modal').classList.add('hidden'); 
+      resetZoom();
+    }
+
+    function handleSortChange() {
+      if (currentCategoryId) {
+        loadCategoryProducts(currentCategoryId);
+      }
+    }
+
+    function filterProducts() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filtered = currentCategoryProducts.filter(p => p.title.toLowerCase().includes(query));
+      renderProducts(filtered);
+    }
 
     init();
   </script>
