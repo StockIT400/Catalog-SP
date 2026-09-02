@@ -506,14 +506,16 @@
     }
 
     function copyShareLink() {
-      if (selectedProductsMap.size === 0) return alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
-      const ids = Array.from(selectedProductsMap.keys()).join(',');
-      const shareUrl = `${window.location.origin}${window.location.pathname}?items=${ids}`;
-      
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        alert('คัดลอกลิงก์เรียบร้อยแล้ว! สามารถนำลิงก์นี้ส่งให้ลูกค้าได้ทันที');
-      });
-    }
+  if (selectedProductsMap.size === 0) return alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
+  const ids = Array.from(selectedProductsMap.keys()).join(',');
+  
+  //  เปลี่ยนเป็นชื่อไฟล์หน้า View สำหรับลูกค้า เช่น /view.html
+  const shareUrl = `${window.location.origin}/view.html?items=${ids}`;
+  
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    alert('คัดลอกลิงก์เรียบร้อยแล้ว! สามารถนำลิงก์นี้ส่งให้ลูกค้าได้ทันที');
+  });
+}
 
     function shareToLine() {
       if (selectedProductsMap.size === 0) return alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
