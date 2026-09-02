@@ -26,111 +26,205 @@
 
   <!-- Header -->
   <header class="bg-white border-b border-emerald-100 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <div class="flex items-center gap-3 cursor-pointer" onclick="showCategoryView()">
-        <div class="bg-emerald-600 text-white p-2.5 rounded-2xl shadow-md shadow-emerald-200">
-          <i data-lucide="layers" class="w-6 h-6"></i>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+      
+      <!-- โลโก้และชื่อระบบ -->
+      <div class="flex items-center gap-2 sm:gap-3 cursor-pointer" onclick="showCategoryView()">
+        <div class="bg-emerald-600 text-white p-2 sm:p-2.5 rounded-xl sm:rounded-2xl shadow-md shadow-emerald-200">
+          <i data-lucide="layers" class="w-5 h-5 sm:w-6 sm:h-6"></i>
         </div>
         <div>
-          <h1 class="font-bold text-xl text-slate-900 leading-tight">Catalog Studio</h1>
-          <p class="text-xs text-slate-500">แค็ตตาล็อกสินค้าและชิ้นงานทั้งหมด</p>
+          <h1 class="font-bold text-base sm:text-xl text-slate-900 leading-tight">Catalog Studio</h1>
+          <p class="text-[10px] sm:text-xs text-slate-500">แค็ตตาล็อกสินค้าและชิ้นงานทั้งหมด</p>
         </div>
       </div>
 
-      <button id="btn-back-categories" onclick="showCategoryView()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i>
-        <span>กลับไปหน้าหมวดหมู่</span>
-      </button>
+      <!-- ปุ่มฝั่งขวา Header -->
+      <div class="flex items-center gap-2">
+        <!-- ปุ่มดูเนื้อหา/รายการที่เลือก -->
+        <button onclick="openSummaryModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3 sm:px-4 py-2 rounded-xl transition flex items-center gap-1.5 sm:gap-2 shadow-sm shadow-emerald-100">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">เนื้อหาที่เลือก</span>
+          <span id="header-selected-count" class="bg-white/20 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md min-w-[18px] text-center">
+            0
+          </span>
+        </button>
+
+        <!-- ปุ่มกลับหน้าหมวดหมู่ (แสดงเฉพาะเมื่ออยู่ในหน้าย่อย) -->
+        <button id="btn-back-categories" onclick="showCategoryView()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 sm:px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">กลับไปหน้าหมวดหมู่</span>
+        </button>
+      </div>
+
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 flex-grow w-full">
 
     <!-- LEVEL 1: หน้าแสดงหมวดหมู่ทั้งหมด -->
-    <div id="section-categories" class="space-y-6">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="folder-grid" class="w-5 h-5 text-emerald-600"></i>
-          หมวดหมู่สินค้าทั้งหมด
-        </h2>
-        <p class="text-xs text-slate-400">คลิกที่การ์ดเพื่อดูสินค้า หรือติ๊กถูกที่มุมการ์ดเพื่อเลือกทั้งหมวดหมู่</p>
+    <div id="section-categories" class="space-y-4 sm:space-y-6">
+      
+      <!-- Control Bar: ค้นหา & กรองขั้นสูง หน้าหมวดหมู่ -->
+      <div class="bg-white p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-sm border border-emerald-100">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+          <div>
+            <h2 class="text-base sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="folder-grid" class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600"></i>
+              หมวดหมู่สินค้าทั้งหมด
+            </h2>
+            <p class="text-[10px] sm:text-xs text-slate-400 mt-0.5">คลิกที่การ์ดเพื่อดูสินค้า หรือติ๊กถูกที่มุมเพื่อเลือกทั้งหมวดหมู่</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <!-- ช่องค้นหาหมวดหมู่ -->
+            <div class="relative flex-grow sm:w-64">
+              <i data-lucide="search" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="category-search-input" onkeyup="filterCategories()" placeholder="ค้นหาชื่อหมวดหมู่..." class="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+
+            <!-- ปุ่มเปิด/ปิด กรองขั้นสูง -->
+            <button onclick="toggleCategoryAdvancedFilter()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl sm:rounded-2xl transition flex items-center gap-1.5 border border-emerald-200">
+              <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+              <span>กรองขั้นสูง</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- แผงกรองขั้นสูง (เปิด/ปิด ได้) -->
+        <div id="category-advanced-filter-panel" class="hidden mt-3 pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[11px] font-medium text-slate-500 mb-1">เรียงลำดับหมวดหมู่</label>
+            <select id="cat-sort-order" onchange="filterCategories()" class="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 py-2 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="id-asc">เรียงตามลำดับเดิม</option>
+              <option value="name-asc">ชื่อ A - Z (ก - ฮ)</option>
+              <option value="name-desc">ชื่อ Z - A (ฮ - ก)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-medium text-slate-500 mb-1">สถานะการเลือกสินค้า</label>
+            <select id="cat-select-filter" onchange="filterCategories()" class="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 py-2 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="all">หมวดหมู่ทั้งหมด</option>
+              <option value="selected_only">เฉพาะหมวดที่มีสินค้าถูกเลือกไว้</option>
+              <option value="unselected_only">เฉพาะหมวดที่ยังไม่ถูกเลือก</option>
+            </select>
+          </div>
+
+          <div class="flex items-end">
+            <button onclick="resetCategoryFilters()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium py-2 px-3 rounded-xl transition flex items-center justify-center gap-1">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              <span>ล้างตัวกรองทั้งหมด</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <!-- Grid แสดงหมวดหมู่ -->
+      <div id="category-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
         <p class="text-slate-400 text-sm col-span-full text-center py-12">กำลังโหลดหมวดหมู่...</p>
       </div>
     </div>
 
     <!-- LEVEL 2: หน้าแสดงสินค้าในหมวดหมู่ที่เลือก -->
-    <div id="section-products" class="hidden space-y-6">
+    <div id="section-products" class="hidden space-y-4 sm:space-y-6">
       
-      <!-- Filter & Search Bar -->
-      <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-emerald-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2 text-xs text-slate-400 font-medium mb-1">
-            <span onclick="showCategoryView()" class="hover:text-emerald-600 cursor-pointer">หมวดหมู่</span>
-            <i data-lucide="chevron-right" class="w-3 h-3"></i>
-            <span id="breadcrumb-cat" class="text-emerald-600 font-semibold">ชื่อหมวดหมู่</span>
+      <!-- Filter & Search Bar สินค้า -->
+      <div class="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-emerald-100">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+          <div>
+            <div class="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-400 font-medium mb-0.5">
+              <span onclick="showCategoryView()" class="hover:text-emerald-600 cursor-pointer">หมวดหมู่</span>
+              <i data-lucide="chevron-right" class="w-3 h-3"></i>
+              <span id="breadcrumb-cat" class="text-emerald-600 font-semibold">ชื่อหมวดหมู่</span>
+            </div>
+            <h2 id="current-cat-title" class="text-lg sm:text-2xl font-bold text-slate-900">ชื่อหมวดหมู่</h2>
           </div>
-          <h2 id="current-cat-title" class="text-2xl font-bold text-slate-900">ชื่อหมวดหมู่</h2>
+
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <!-- ปุ่มเลือกทั้งหมดในหมวดนี้ -->
+            <button onclick="toggleSelectAllCurrentCategory()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl sm:rounded-2xl transition flex items-center gap-1.5 border border-emerald-200">
+              <i data-lucide="check-square" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+              <span>เลือกทั้งหมวดนี้</span>
+            </button>
+
+            <!-- ช่องค้นหา -->
+            <div class="relative flex-grow sm:w-64">
+              <i data-lucide="search" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="search-input" onkeyup="filterProducts()" placeholder="ค้นหาชื่อสินค้า..." class="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+
+            <!-- ปุ่มกรองขั้นสูง สินค้า -->
+            <button onclick="toggleProductAdvancedFilter()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl sm:rounded-2xl transition flex items-center gap-1.5 border border-slate-200">
+              <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600"></i>
+              <span>กรองขั้นสูง</span>
+            </button>
+          </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <!-- ปุ่มเลือกทั้งหมดในหมวดนี้ -->
-          <button onclick="toggleSelectAllCurrentCategory()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold px-3.5 py-2.5 rounded-2xl transition flex items-center gap-1.5 border border-emerald-200">
-            <i data-lucide="check-square" class="w-4 h-4"></i>
-            <span>เลือกทั้งหมดในหมวดนี้</span>
-          </button>
-
-          <!-- ช่องค้นหา -->
-          <div class="relative flex-grow sm:w-64">
-            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="search-input" onkeyup="filterProducts()" placeholder="ค้นหาชื่อสินค้าในหมวดนี้..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          </div>
-
-          <!-- ตัวเลือกการเรียงลำดับ -->
-          <div class="flex items-center gap-2">
-            <select id="sort-order" onchange="handleSortChange()" class="bg-slate-50 border border-slate-200 text-xs text-slate-700 py-2.5 px-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
-              <option value="asc">เรียงตาม: เก่าไปใหม่ (เดิมไปใหม่)</option>
-              <option value="desc">เรียงตาม: ใหม่ไปเก่า (ใหม่ไปเดิม)</option>
+        <!-- แผงกรองขั้นสูง สินค้า (เปิด/ปิด ได้) -->
+        <div id="product-advanced-filter-panel" class="hidden mt-3 pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[11px] font-medium text-slate-500 mb-1">เรียงลำดับสินค้า</label>
+            <select id="sort-order" onchange="filterProducts()" class="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 py-2 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="asc">เรียง: เก่าไปใหม่</option>
+              <option value="desc">เรียง: ใหม่ไปเก่า</option>
+              <option value="title-asc">เรียงตามชื่อสินค้า A-Z</option>
             </select>
           </div>
+
+          <div>
+            <label class="block text-[11px] font-medium text-slate-500 mb-1">สถานะการเลือก</label>
+            <select id="prod-select-filter" onchange="filterProducts()" class="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 py-2 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="all">สินค้าทั้งหมด</option>
+              <option value="selected_only">เฉพาะสินค้าที่เลือกไว้</option>
+              <option value="unselected_only">เฉพาะสินค้ายังไม่ได้เลือก</option>
+            </select>
+          </div>
+
+          <div class="flex items-end">
+            <button onclick="resetProductFilters()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium py-2 px-3 rounded-xl transition flex items-center justify-center gap-1">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              <span>ล้างตัวกรองทั้งหมด</span>
+            </button>
+          </div>
         </div>
+
       </div>
 
-      <!-- รายการสินค้า Grid -->
-      <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <!-- รายการสินค้า Grid (มือถือแสดง 2 คอลัมน์) -->
+      <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-6">
         <p class="text-slate-400 text-sm col-span-full text-center py-12">กำลังโหลดรายการสินค้า...</p>
       </div>
     </div>
 
   </main>
 
-  <!-- FLOATING SELECTION BAR (แถบสรุปด้านล่างเมื่อมีการติ๊กเลือกสินค้า) -->
-  <div id="floating-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl z-40 flex items-center gap-4 transition-all duration-300 transform translate-y-32 opacity-0 border border-slate-800">
-    <div class="flex items-center gap-2.5">
-      <div class="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-xs shadow-md shadow-emerald-900" id="selected-count">0</div>
-      <span class="text-xs sm:text-sm font-medium">รายการที่เลือกไว้</span>
+  <!-- FLOATING SELECTION BAR (แถบสรุปด้านล่าง) -->
+  <div id="floating-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur-md text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl z-40 flex items-center gap-3 sm:gap-4 transition-all duration-300 transform translate-y-32 opacity-0 border border-slate-800">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-xs shadow-md shadow-emerald-900" id="selected-count">0</div>
+      <span class="text-xs sm:text-sm font-medium">เลือกไว้</span>
     </div>
     
     <div class="h-4 w-px bg-slate-700"></div>
 
-    <button onclick="openSummaryModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+    <button onclick="openSummaryModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5">
       <i data-lucide="list-checks" class="w-3.5 h-3.5 text-emerald-400"></i>
-      <span>ดูรายการที่เลือก</span>
+      <span>ดูรายการ</span>
     </button>
 
-    <button onclick="copyShareLink()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-md shadow-emerald-900/40">
+    <button onclick="copyShareLink()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-md shadow-emerald-900/40">
       <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-      <span>คัดลอกลิงก์แชร์</span>
+      <span>คัดลอกลิงก์</span>
     </button>
   </div>
 
   <!-- MODAL สรุปรายการสินค้าที่เลือก -->
   <div id="summary-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl flex flex-col max-h-[85vh]">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-100">
         <div>
           <h3 class="font-bold text-slate-900 text-base">รายการสินค้าที่เลือกไว้</h3>
           <p class="text-xs text-slate-400">เตรียมลิงก์ส่งสรุปรายการให้ลูกค้า</p>
@@ -140,22 +234,22 @@
         </button>
       </div>
 
-      <div id="summary-items-list" class="overflow-y-auto my-4 space-y-2.5 flex-grow pr-1">
-        <!-- รายการสินค้าที่ติ๊กเลือกจะถูกใส่ที่นี่ -->
+      <div id="summary-items-list" class="overflow-y-auto my-3 sm:my-4 space-y-2 flex-grow pr-1">
+        <!-- รายการสินค้าที่เลือกจะถูกใส่ที่นี่ -->
       </div>
 
-      <div class="pt-4 border-t border-slate-100 flex flex-col gap-2.5">
+      <div class="pt-3 sm:pt-4 border-t border-slate-100 flex flex-col gap-2.5">
         <div class="flex items-center justify-between text-xs text-slate-500">
           <span>รวมทั้งหมด: <strong id="summary-total-count" class="text-emerald-600 font-bold">0</strong> รายการ</span>
           <button onclick="clearAllSelections()" class="text-red-500 hover:underline">ล้างการเลือกทั้งหมด</button>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
-          <button onclick="copyShareLink()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+          <button onclick="copyShareLink()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
             <i data-lucide="copy" class="w-4 h-4"></i>
             <span>คัดลอกลิงก์</span>
           </button>
-          <button onclick="shareToLine()" class="w-full bg-[#06C755] hover:bg-[#05b34c] text-white py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+          <button onclick="shareToLine()" class="w-full bg-[#06C755] hover:bg-[#05b34c] text-white py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
             <i data-lucide="message-circle" class="w-4 h-4"></i>
             <span>ส่งเข้า LINE</span>
           </button>
@@ -164,47 +258,47 @@
     </div>
   </div>
 
-  <!-- Modal สำหรับดูภาพ A4 ใหญ่ + พร้อมระบบซูมขยาย -->
-  <div id="a4-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <!-- Modal สำหรับดูภาพ A4 ใหญ่ + ระบบซูมขยาย -->
+  <div id="a4-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
     <div class="relative max-w-4xl w-full h-[92vh] bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
       
       <!-- Top Control Bar -->
-      <div class="p-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 z-10">
-        <h3 id="modal-title" class="font-bold text-sm truncate pr-4 text-emerald-400">แสดงรูปภาพสินค้า A4</h3>
+      <div class="p-3 sm:p-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 z-10">
+        <h3 id="modal-title" class="font-bold text-xs sm:text-sm truncate pr-2 text-emerald-400">แสดงรูปภาพสินค้า A4</h3>
         
         <!-- แถบเครื่องมือซูม -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 sm:gap-2">
           <div class="bg-slate-800 px-2 py-1 rounded-xl flex items-center gap-1 text-slate-200 border border-slate-700">
-            <button onclick="zoomOut()" title="ซูมออก" class="p-1 hover:bg-slate-700 rounded-lg transition text-slate-300 hover:text-white">
-              <i data-lucide="zoom-out" class="w-4 h-4"></i>
+            <button onclick="zoomOut()" title="ซูมออก" class="p-0.5 sm:p-1 hover:bg-slate-700 rounded-lg transition text-slate-300 hover:text-white">
+              <i data-lucide="zoom-out" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
             </button>
-            <span id="zoom-level-text" class="text-[11px] font-mono px-1.5 w-12 text-center select-none font-bold">100%</span>
-            <button onclick="zoomIn()" title="ซูมเข้า" class="p-1 hover:bg-slate-700 rounded-lg transition text-slate-300 hover:text-white">
-              <i data-lucide="zoom-in" class="w-4 h-4"></i>
+            <span id="zoom-level-text" class="text-[10px] sm:text-[11px] font-mono px-1 w-10 sm:w-12 text-center select-none font-bold">100%</span>
+            <button onclick="zoomIn()" title="ซูมเข้า" class="p-0.5 sm:p-1 hover:bg-slate-700 rounded-lg transition text-slate-300 hover:text-white">
+              <i data-lucide="zoom-in" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
             </button>
-            <button onclick="resetZoom()" title="ขนาดปกติ" class="p-1 hover:bg-slate-700 rounded-lg transition text-slate-300 hover:text-white border-l border-slate-700 pl-2 ml-1">
-              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <button onclick="resetZoom()" title="ขนาดปกติ" class="p-0.5 sm:p-1 hover:bg-slate-700 rounded-lg transition text-slate-300 hover:text-white border-l border-slate-700 pl-1.5 ml-0.5">
+              <i data-lucide="rotate-ccw" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
             </button>
           </div>
 
-          <button onclick="closeA4Modal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-xl transition">
-            <i data-lucide="x" class="w-5 h-5"></i>
+          <button onclick="closeA4Modal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-1.5 sm:p-2 rounded-xl transition">
+            <i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i>
           </button>
         </div>
       </div>
 
-      <!-- Area แสดงภาพ A4 ที่รองรับการซูมและคลิกลาก -->
-      <div id="zoom-viewport" class="zoom-container overflow-auto flex-grow flex items-center justify-center bg-slate-950 p-4 relative cursor-grab active:cursor-grabbing">
+      <!-- Area แสดงภาพ A4 -->
+      <div id="zoom-viewport" class="zoom-container overflow-auto flex-grow flex items-center justify-center bg-slate-950 p-2 sm:p-4 relative cursor-grab active:cursor-grabbing">
         <div id="zoom-wrapper" class="transition-transform duration-150 ease-out inline-block max-w-full">
           <img id="modal-img-a4" src="" class="max-h-[80vh] w-auto object-contain rounded-lg shadow-2xl pointer-events-none select-none">
         </div>
       </div>
 
       <!-- Bottom Nav Bar -->
-      <div id="modal-nav" class="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-white z-10">
-        <button onclick="prevModalImg()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold transition">รูปก่อนหน้า</button>
+      <div id="modal-nav" class="p-2.5 sm:p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-white z-10">
+        <button onclick="prevModalImg()" class="px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold transition">รูปก่อนหน้า</button>
         <span id="modal-counter" class="text-xs text-slate-400">1 / 1</span>
-        <button onclick="nextModalImg()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold transition">รูปถัดไป</button>
+        <button onclick="nextModalImg()" class="px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold transition">รูปถัดไป</button>
       </div>
 
     </div>
@@ -247,14 +341,62 @@
 
       if (error) return console.error("ดึงข้อมูลหมวดหมู่ล้มเหลว:", error.message);
       categories = data || [];
-      renderCategories(categories);
+      filterCategories(); // เรียกผ่าน filterCategories เพื่อใช้เงื่อนไขการค้นหา/กรองเริ่มต้น
     }
 
-    // แสดงหมวดหมู่ทั้งหมด + เพิ่ม Checkbox เลือกทั้งหมวดหมู่ที่มุมการ์ด
+    // ระบบค้นหาและกรองหมวดหมู่ (Level 1)
+    function toggleCategoryAdvancedFilter() {
+      const panel = document.getElementById('category-advanced-filter-panel');
+      panel.classList.toggle('hidden');
+    }
+
+    function filterCategories() {
+      const query = document.getElementById('category-search-input').value.toLowerCase().trim();
+      const sortVal = document.getElementById('cat-sort-order').value;
+      const selectVal = document.getElementById('cat-select-filter').value;
+
+      let list = [...categories];
+
+      // 1. ค้นหาตามข้อความ
+      if (query) {
+        list = list.filter(c => c.name.toLowerCase().includes(query));
+      }
+
+      // 2. กรองตามการเลือกสินค้า
+      if (selectVal === 'selected_only') {
+        list = list.filter(c => {
+          return Array.from(selectedProductsMap.values()).some(p => p.category_id === c.id);
+        });
+      } else if (selectVal === 'unselected_only') {
+        list = list.filter(c => {
+          return !Array.from(selectedProductsMap.values()).some(p => p.category_id === c.id);
+        });
+      }
+
+      // 3. เรียงลำดับ
+      if (sortVal === 'name-asc') {
+        list.sort((a, b) => a.name.localeCompare(b.name, 'th'));
+      } else if (sortVal === 'name-desc') {
+        list.sort((a, b) => b.name.localeCompare(a.name, 'th'));
+      } else if (sortVal === 'id-asc') {
+        list.sort((a, b) => a.id - b.id);
+      }
+
+      renderCategories(list);
+    }
+
+    function resetCategoryFilters() {
+      document.getElementById('category-search-input').value = '';
+      document.getElementById('cat-sort-order').value = 'id-asc';
+      document.getElementById('cat-select-filter').value = 'all';
+      filterCategories();
+    }
+
+    // แสดงหมวดหมู่ทั้งหมด
     async function renderCategories(items) {
       const grid = document.getElementById('category-grid');
       if (items.length === 0) {
-        grid.innerHTML = `<p class="text-slate-400 text-sm col-span-full text-center py-12">ยังไม่มีหมวดหมู่สินค้า</p>`;
+        grid.innerHTML = `<p class="text-slate-400 text-sm col-span-full text-center py-12">ไม่พบหมวดหมู่ที่ตรงกับการค้นหา</p>`;
         return;
       }
 
@@ -263,30 +405,30 @@
         const isSelected = selectedCountInCat > 0;
 
         return `
-          <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="bg-white rounded-[24px] overflow-hidden border ${isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-100'} shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer group flex flex-col relative">
+          <div onclick="openCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="bg-white rounded-2xl sm:rounded-[24px] overflow-hidden border ${isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-100'} shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer group flex flex-col relative">
             
             <!-- Checkbox ติ๊กเลือกทั้งหมวดหมู่ -->
-            <div onclick="toggleCategorySelect(event, ${c.id})" class="absolute top-3 right-3 z-20 bg-white/90 backdrop-blur-sm p-1.5 rounded-xl shadow-md hover:scale-110 transition flex items-center gap-1.5" title="ติ๊กเพื่อเลือกสินค้าทั้งหมดในหมวดนี้">
-              <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded cursor-pointer border-slate-300 focus:ring-0">
-              ${selectedCountInCat > 0 ? `<span class="text-[11px] font-bold text-emerald-600 pr-1">${selectedCountInCat}</span>` : ''}
+            <div onclick="toggleCategorySelect(event, ${c.id})" class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20 bg-white/90 backdrop-blur-sm p-1 sm:p-1.5 rounded-lg sm:rounded-xl shadow-md hover:scale-110 transition flex items-center gap-1" title="ติ๊กเพื่อเลือกสินค้าทั้งหมดในหมวดนี้">
+              <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 rounded cursor-pointer border-slate-300 focus:ring-0">
+              ${selectedCountInCat > 0 ? `<span class="text-[10px] sm:text-[11px] font-bold text-emerald-600 pr-0.5">${selectedCountInCat}</span>` : ''}
             </div>
 
             <!-- รูปปกหมวดหมู่ -->
-            <div class="h-48 bg-slate-50 relative overflow-hidden flex items-center justify-center p-2 border-b border-slate-100">
+            <div class="h-32 sm:h-48 bg-slate-50 relative overflow-hidden flex items-center justify-center p-2 border-b border-slate-100">
               ${c.cover_url 
                 ? `<img src="${c.cover_url}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500">` 
-                : `<div class="w-full h-full flex flex-col items-center justify-center text-slate-300 bg-slate-50"><i data-lucide="folder" class="w-12 h-12 mb-2"></i><span class="text-xs">ไม่มีภาพปก</span></div>`
+                : `<div class="w-full h-full flex flex-col items-center justify-center text-slate-300 bg-slate-50"><i data-lucide="folder" class="w-8 h-8 sm:w-12 sm:h-12 mb-1 sm:mb-2"></i><span class="text-[10px] sm:text-xs">ไม่มีภาพปก</span></div>`
               }
             </div>
 
-            <!-- ข้อความด้านล่างการ์ด + ปุ่มวงกลมสีเขียว -->
-            <div class="p-4 flex-grow flex items-center justify-between bg-white">
+            <!-- ข้อความด้านล่างการ์ด -->
+            <div class="p-2.5 sm:p-4 flex-grow flex items-center justify-between bg-white">
               <div>
-                <h4 class="font-bold text-slate-800 text-sm leading-tight group-hover:text-emerald-600 transition">${c.name}</h4>
-                <p class="text-[11px] text-slate-400 mt-1">คลิกเพื่อเข้าดูสินค้าในหมวด</p>
+                <h4 class="font-bold text-slate-800 text-xs sm:text-sm leading-tight group-hover:text-emerald-600 transition truncate">${c.name}</h4>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1 hidden sm:block">คลิกเพื่อเข้าดูสินค้า</p>
               </div>
-              <div class="w-8 h-8 rounded-full bg-[#EAF5EE] text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition duration-200 flex-shrink-0">
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#EAF5EE] text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition duration-200 flex-shrink-0">
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               </div>
             </div>
 
@@ -300,7 +442,6 @@
     async function toggleCategorySelect(event, catId) {
       if (event) event.stopPropagation();
 
-      // ดึงสินค้าในหมวดหมู่นี้จาก Supabase (หากยังไม่มีข้อมูล)
       const { data: prods, error } = await supabaseClient
         .from('products')
         .select(`*, product_images(*)`)
@@ -315,7 +456,6 @@
         return { ...p, images: prodImgs };
       });
 
-      // เช็คว่าเลือกไว้ครบหรือยัง
       const allSelected = categoryProducts.every(p => selectedProductsMap.has(p.id));
 
       categoryProducts.forEach(p => {
@@ -344,13 +484,11 @@
       document.getElementById('section-categories').classList.remove('hidden');
       document.getElementById('section-products').classList.add('hidden');
       document.getElementById('btn-back-categories').classList.add('hidden');
-      renderCategories(categories);
+      filterCategories();
     }
 
     // ดึงข้อมูลสินค้าในหมวดหมู่
     async function loadCategoryProducts(catId) {
-      const isAsc = document.getElementById('sort-order').value === 'asc';
-
       const { data: products, error } = await supabaseClient
         .from('products')
         .select(`
@@ -359,7 +497,7 @@
         `)
         .eq('category_id', catId)
         .eq('is_active', true)
-        .order('id', { ascending: isAsc });
+        .order('id', { ascending: true });
 
       if (error) return console.error("เกิดข้อผิดพลาดในการดึงสินค้า:", error.message);
 
@@ -371,13 +509,58 @@
         return { ...p, images: prodImgs };
       });
 
-      renderProducts(currentCategoryProducts);
+      filterProducts();
     }
 
+    // ค้นหาและกรองสินค้า (Level 2)
+    function toggleProductAdvancedFilter() {
+      const panel = document.getElementById('product-advanced-filter-panel');
+      panel.classList.toggle('hidden');
+    }
+
+    function filterProducts() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      const sortVal = document.getElementById('sort-order').value;
+      const selectVal = document.getElementById('prod-select-filter').value;
+
+      let list = [...currentCategoryProducts];
+
+      // 1. ค้นหาชื่อสินค้า
+      if (query) {
+        list = list.filter(p => p.title.toLowerCase().includes(query));
+      }
+
+      // 2. สถานะการเลือก
+      if (selectVal === 'selected_only') {
+        list = list.filter(p => selectedProductsMap.has(p.id));
+      } else if (selectVal === 'unselected_only') {
+        list = list.filter(p => !selectedProductsMap.has(p.id));
+      }
+
+      // 3. การเรียงลำดับ
+      if (sortVal === 'asc') {
+        list.sort((a, b) => a.id - b.id);
+      } else if (sortVal === 'desc') {
+        list.sort((a, b) => b.id - a.id);
+      } else if (sortVal === 'title-asc') {
+        list.sort((a, b) => a.title.localeCompare(b.title, 'th'));
+      }
+
+      renderProducts(list);
+    }
+
+    function resetProductFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('sort-order').value = 'asc';
+      document.getElementById('prod-select-filter').value = 'all';
+      filterProducts();
+    }
+
+    // แสดงการ์ดสินค้า (2 คอลัมน์บนมือถือ)
     function renderProducts(items) {
       const grid = document.getElementById('product-grid');
       if (items.length === 0) {
-        grid.innerHTML = `<p class="text-slate-400 text-sm col-span-full text-center py-12">ไม่พบสินค้าในหมวดหมู่นี้</p>`;
+        grid.innerHTML = `<p class="text-slate-400 text-sm col-span-full text-center py-12">ไม่พบสินค้าที่ตรงกับเงื่อนไขการค้นหา</p>`;
         return;
       }
 
@@ -387,31 +570,38 @@
         const isSelected = selectedProductsMap.has(p.id);
 
         return `
-          <div class="bg-white border ${isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'} rounded-3xl p-3 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between relative">
+          <div class="bg-white border ${isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'} rounded-2xl sm:rounded-3xl p-2 sm:p-3 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between relative">
             
-            <div onclick="toggleProductSelect(event, ${p.id})" class="absolute top-5 right-5 z-20 cursor-pointer bg-white/90 backdrop-blur-sm p-1 rounded-xl shadow-md hover:scale-110 transition">
-              <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-5 h-5 text-emerald-600 rounded-lg cursor-pointer border-slate-300 focus:ring-0">
+            <!-- Checkbox ติ๊กเลือก -->
+            <div onclick="toggleProductSelect(event, ${p.id})" class="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 cursor-pointer bg-white/90 backdrop-blur-sm p-1 rounded-lg sm:rounded-xl shadow-md hover:scale-110 transition">
+              <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 rounded cursor-pointer border-slate-300 focus:ring-0">
             </div>
 
             <div>
-              <div onclick="openA4ModalByProdId(${p.id})" class="aspect-[1/1.414] rounded-2xl overflow-hidden bg-slate-50 mb-3 border border-slate-200 relative cursor-pointer hover:opacity-95 transition flex items-center justify-center p-1 group">
+              <!-- รูปภาพสินค้า -->
+              <div onclick="openA4ModalByProdId(${p.id})" class="aspect-[1/1.2] sm:aspect-[1/1.414] rounded-xl sm:rounded-2xl overflow-hidden bg-slate-50 mb-2 sm:mb-3 border border-slate-100 relative cursor-pointer hover:opacity-95 transition flex items-center justify-center p-1 group">
                 <img src="${coverImg}" class="w-full h-full object-contain">
-                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-medium gap-1 rounded-2xl">
-                  <i data-lucide="zoom-in" class="w-4 h-4"></i> ซูมดูภาพ A4
+                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[11px] sm:text-xs font-medium gap-1 rounded-xl sm:rounded-2xl">
+                  <i data-lucide="zoom-in" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> <span class="hidden sm:inline">ซูมดูภาพ A4</span>
                 </div>
-                ${imgCount > 1 ? `<span class="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">${imgCount} หน้า</span>` : ''}
+                ${imgCount > 1 ? `<span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-emerald-600 text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow">${imgCount} หน้า</span>` : ''}
               </div>
-              <h4 class="font-bold text-sm text-slate-800 truncate px-1 mb-3">${p.title}</h4>
+
+              <!-- ชื่อสินค้า -->
+              <h4 class="font-bold text-xs sm:text-sm text-slate-800 line-clamp-2 leading-tight mb-2 min-h-[2rem] sm:min-h-[2.2rem] px-0.5" title="${p.title}">
+                ${p.title}
+              </h4>
             </div>
 
-            <div class="grid grid-cols-5 gap-1.5">
-              <button onclick="openA4ModalByProdId(${p.id})" class="col-span-3 text-center text-xs font-semibold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 py-2.5 rounded-2xl transition truncate px-1 flex items-center justify-center gap-1">
-                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
-                <span>ดูภาพเต็ม A4</span>
+            <!-- ปุ่มการทำงานใต้การ์ด -->
+            <div class="grid grid-cols-2 gap-1 pt-1 border-t border-slate-100">
+              <button onclick="openA4ModalByProdId(${p.id})" class="text-center text-[10px] sm:text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 py-1.5 sm:py-2 rounded-xl transition truncate px-1 flex items-center justify-center gap-0.5 sm:gap-1">
+                <i data-lucide="maximize-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                <span>ดู A4</span>
               </button>
               
-              <button onclick="toggleProductSelect(event, ${p.id})" class="col-span-2 text-xs font-semibold ${isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} py-2.5 rounded-2xl transition flex items-center justify-center gap-1">
-                <i data-lucide="${isSelected ? 'check' : 'plus'}" class="w-3.5 h-3.5"></i>
+              <button onclick="toggleProductSelect(event, ${p.id})" class="text-[10px] sm:text-xs font-semibold ${isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} py-1.5 sm:py-2 rounded-xl transition flex items-center justify-center gap-0.5 sm:gap-1">
+                <i data-lucide="${isSelected ? 'check' : 'plus'}" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
                 <span>${isSelected ? 'เลือกแล้ว' : 'เลือก'}</span>
               </button>
             </div>
@@ -464,6 +654,9 @@
       const bar = document.getElementById('floating-bar');
       document.getElementById('selected-count').innerText = count;
 
+      const headerBadge = document.getElementById('header-selected-count');
+      if (headerBadge) headerBadge.innerText = count;
+
       if (count > 0) {
         bar.classList.remove('translate-y-32', 'opacity-0');
       } else {
@@ -471,9 +664,9 @@
       }
 
       if (currentCategoryId) {
-        renderProducts(currentCategoryProducts);
+        filterProducts();
       } else {
-        renderCategories(categories);
+        filterCategories();
       }
     }
 
@@ -486,12 +679,12 @@
         container.innerHTML = `<p class="text-slate-400 text-xs text-center py-6">ยังไม่มีรายการที่เลือกไว้</p>`;
       } else {
         container.innerHTML = items.map(p => `
-          <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-100 rounded-2xl gap-3">
-            <div class="flex items-center gap-3 overflow-hidden">
-              <img src="${p.cover_url || p.image_url || (p.images && p.images[0]?.image_url)}" class="w-10 h-10 object-contain rounded-lg bg-white border border-slate-200">
+          <div class="flex items-center justify-between p-2 sm:p-2.5 bg-slate-50 border border-slate-100 rounded-2xl gap-2 sm:gap-3">
+            <div class="flex items-center gap-2.5 overflow-hidden">
+              <img src="${p.cover_url || p.image_url || (p.images && p.images[0]?.image_url)}" class="w-9 h-9 sm:w-10 sm:h-10 object-contain rounded-lg bg-white border border-slate-200 flex-shrink-0">
               <span class="text-xs font-semibold text-slate-800 truncate">${p.title}</span>
             </div>
-            <button onclick="toggleProductSelect(null, ${p.id}); openSummaryModal();" class="text-slate-400 hover:text-red-500 p-1">
+            <button onclick="toggleProductSelect(null, ${p.id}); openSummaryModal();" class="text-slate-400 hover:text-red-500 p-1 flex-shrink-0">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </div>
@@ -506,21 +699,19 @@
     }
 
     function copyShareLink() {
-  if (selectedProductsMap.size === 0) return alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
-  const ids = Array.from(selectedProductsMap.keys()).join(',');
-  
-  //  เปลี่ยนเป็นชื่อไฟล์หน้า View สำหรับลูกค้า เช่น /view.html
-  const shareUrl = `${window.location.origin}/view.html?items=${ids}`;
-  
-  navigator.clipboard.writeText(shareUrl).then(() => {
-    alert('คัดลอกลิงก์เรียบร้อยแล้ว! สามารถนำลิงก์นี้ส่งให้ลูกค้าได้ทันที');
-  });
-}
+      if (selectedProductsMap.size === 0) return alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
+      const ids = Array.from(selectedProductsMap.keys()).join(',');
+      const shareUrl = `${window.location.origin}/view.html?items=${ids}`;
+      
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert('คัดลอกลิงก์เรียบร้อยแล้ว! สามารถนำลิงก์นี้ส่งให้ลูกค้าได้ทันที');
+      });
+    }
 
     function shareToLine() {
       if (selectedProductsMap.size === 0) return alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
       const ids = Array.from(selectedProductsMap.keys()).join(',');
-      const shareUrl = `${window.location.origin}${window.location.pathname}?items=${ids}`;
+      const shareUrl = `${window.location.origin}/view.html?items=${ids}`;
       window.open(`https://line.me/R/msg/text/?รายการสินค้าที่สนใจ: ${encodeURIComponent(shareUrl)}`, '_blank');
     }
 
@@ -554,17 +745,12 @@
     function setupZoomControls() {
       const viewport = document.getElementById('zoom-viewport');
 
-      // ซูมภาพด้วย Scroll Wheel
       viewport.addEventListener('wheel', (e) => {
         e.preventDefault();
-        if (e.deltaY < 0) {
-          zoomIn();
-        } else {
-          zoomOut();
-        }
+        if (e.deltaY < 0) zoomIn();
+        else zoomOut();
       }, { passive: false });
 
-      // คลิกลากเพื่อเลื่อนภาพ (Drag & Pan)
       viewport.addEventListener('mousedown', (e) => {
         if (zoomScale <= 1) return;
         isDragging = true;
@@ -653,18 +839,6 @@
     function closeA4Modal() { 
       document.getElementById('a4-modal').classList.add('hidden'); 
       resetZoom();
-    }
-
-    function handleSortChange() {
-      if (currentCategoryId) {
-        loadCategoryProducts(currentCategoryId);
-      }
-    }
-
-    function filterProducts() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const filtered = currentCategoryProducts.filter(p => p.title.toLowerCase().includes(query));
-      renderProducts(filtered);
     }
 
     init();
