@@ -165,12 +165,25 @@
       elem.parentElement.addEventListener('wheel', panzoomInstance.zoomWithWheel);
     }
 
+    // อ่าน Parameter จาก URL และแสดงผลเฉพาะสินค้าที่ถูกส่งมา
     async function parseUrlAndRender() {
       const urlParams = new URLSearchParams(window.location.search);
+      const itemsStr = urlParams.get('items');
       const catId = urlParams.get('cat');
       const catsStr = urlParams.get('cats');
       const prodIdsStr = urlParams.get('prods');
 
+      // 1. กรณีมาจากลิงก์แชร์ที่มีการติ๊กเลือกสินค้าเฉพาะรายการ (?items=1,2,3 หรือ ?prods=1,2,3 โดยไม่มี cat)
+      const targetItemsParam = itemsStr || (prodIdsStr && !catId ? prodIdsStr : null);
+      if (targetItemsParam) {
+        const targetIds = targetItemsParam.split(',').map(Number).filter(id => !isNaN(id));
+        if (targetIds.length > 0) {
+          await renderSpecificProductsOnly(targetIds);
+          return;
+        }
+      }
+
+      // 2. กรณีเลือกดูเฉพาะหมวดหมู่ย่อย
       if (catsStr) {
         hasMultipleCats = true;
         const targetCatIds = catsStr.split(',').map(Number);
@@ -184,10 +197,47 @@
           await openCategory(cat.id, cat.name, prodIds);
         }
       } else {
+        // 3. กรณีลิงก์ปกติ ให้แสดงหมวดหมู่ทั้งหมด
         hasMultipleCats = true;
         const { data: categories } = await supabaseClient.from('categories').select('*');
         renderCategories(categories || []);
       }
+    }
+
+    // ฟังก์ชันสำหรับดึงและแสดงผล "เฉพาะสินค้าที่ถูกเลือกในลิงก์" เท่านั้น
+    async function renderSpecificProductsOnly(prodIds) {
+      document.getElementById('section-categories').classList.add('hidden');
+      document.getElementById('section-products').classList.remove('hidden');
+      document.getElementById('btn-back-cat').classList.add('hidden');
+      document.getElementById('breadcrumb-back').classList.add('hidden');
+      
+      document.getElementById('current-cat-title').innerText = "รายการสินค้าที่เลือกไว้สำหรับคุณ";
+      document.getElementById('breadcrumb-cat').innerText = "รายการที่เลือกแชร์";
+
+      // ดึงข้อมูลสินค้าเฉพาะ ID ที่ระบุ
+      const { data: products } = await supabaseClient
+        .from('products')
+        .select('*')
+        .in('id', prodIds)
+        .eq('is_active', true);
+
+      // ดึงรูปภาพประกอบของสินค้าเหล่านั้น
+      const { data: images } = await supabaseClient
+        .from('product_images')
+        .select('*')
+        .in('product_id', prodIds)
+        .order('sort_order', { ascending: true });
+
+      currentCategoryProducts = (products || []).map(p => {
+        const prodImgs = (images || []).filter(img => img.product_id === p.id).map(img => img.image_url);
+        if (prodImgs.length === 0 && p.image_url) prodImgs.push(p.image_url);
+        
+        const displayCover = p.cover_url || prodImgs[0] || 'https://via.placeholder.com/400x500?text=No+Image';
+
+        return { ...p, images: prodImgs, displayCover };
+      });
+
+      renderProducts(currentCategoryProducts);
     }
 
     function renderCategories(items) {
@@ -283,7 +333,6 @@
         return `
           <div onclick="openA4Modal('${p.title.replace(/'/g, "\\'")}', ${imagesJson})" class="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer group flex flex-col justify-between">
             <div>
-              <!-- ปรับกรอบรูปให้รองรับทุกสัดส่วน (จัตุรัส, ผืนผ้า, ริบบิ้นแนวยาว) ด้วย object-contain และความสูงยืดหยุ่น -->
               <div class="h-48 rounded-xl overflow-hidden bg-slate-50 mb-3 border border-slate-100 relative flex items-center justify-center p-2 group-hover:border-sky-200 transition">
                 <img src="${p.displayCover}" class="w-full h-full object-contain">
                 <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px] rounded-xl">
